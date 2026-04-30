@@ -196,6 +196,20 @@
             direction: rtl;
         }
 
+        .cell-tooltip {
+            position: fixed;
+            background: #222;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9999;
+            pointer-events: none;
+            white-space: nowrap;
+            direction: rtl;
+            display: none;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -617,6 +631,7 @@
 <div class="calendar-wrapper">
     <div class="calendar" id="calendar"></div>
 </div>
+<div class="cell-tooltip" id="cellTooltip"></div>
 
 <div class="bottom-sections">
     <div class="section-card">
@@ -852,7 +867,7 @@
                         if (entryType2 === "holiday") preview.classList.add("holiday-preview");
                         preview.textContent = entry.text;
                         cell.appendChild(preview);
-                        cell.title = entry.text;
+                        cell.dataset.tip = entry.text;
                     }
 
                     if (isToday(currentYear, m, dayNum)) {
@@ -1122,6 +1137,23 @@
         if (!document.getElementById("modalOverlay").classList.contains("active")) return;
         if (e.key === "Escape") closeEditor();
         if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveEntry();
+    });
+
+    var tooltip = document.getElementById("cellTooltip");
+    document.getElementById("calendar").addEventListener("mouseover", function(e) {
+        var cell = e.target.closest(".day-cell");
+        if (cell && cell.dataset.tip) {
+            tooltip.textContent = cell.dataset.tip;
+            tooltip.style.display = "block";
+            var rect = cell.getBoundingClientRect();
+            tooltip.style.top = (rect.top - 28) + "px";
+            tooltip.style.left = (rect.left + rect.width / 2) + "px";
+            tooltip.style.transform = "translateX(-50%)";
+        }
+    });
+    document.getElementById("calendar").addEventListener("mouseout", function(e) {
+        var cell = e.target.closest(".day-cell");
+        if (cell) tooltip.style.display = "none";
     });
 
     buildYearSelector();
