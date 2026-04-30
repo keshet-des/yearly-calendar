@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>לוח תכנון שנתי</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -114,8 +115,9 @@
             cursor: pointer;
             position: relative;
             text-align: right;
-            font-size: 10px;
-            font-weight: 500;
+            font-size: 9px;
+            font-weight: 400;
+            color: #3B383D;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -132,23 +134,19 @@
             z-index: 1;
         }
 
-        .day-cell.has-content { background: #eafaf1; }
-        .day-cell.has-content:hover {
-            background: #d1f2e0;
-            box-shadow: inset 0 0 0 2px #27ae60;
-        }
-
-        .day-cell.has-content::after {
-            content: "";
+        .day-cell .type-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
             position: absolute;
-            bottom: 3px;
+            bottom: 2px;
             left: 50%;
             transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            background: #27ae60;
-            border-radius: 50%;
         }
+
+        .type-dot.type-general { background: #3498db; }
+        .type-dot.type-holiday { background: #e74c3c; }
+        .type-dot.type-vacation { background: #27ae60; }
 
         .day-cell.today {
             background: #fef9e7;
@@ -156,15 +154,13 @@
             z-index: 1;
         }
 
-        .day-cell.weekend { background: #f8f9fa; }
-        .day-cell.weekend.has-content { background: #e8f6ef; }
+        .day-cell.weekend { background: #F7F5F9; }
 
-        .empty-cell { background: #f4f6f8; overflow: hidden; }
+        .empty-cell { background: #E2DCE5; overflow: hidden; border: none; outline: none; box-shadow: none; }
 
-        .month-row-odd .day-cell { background: #fafcff; }
-        .month-row-odd .day-cell.has-content { background: #e7f9ef; }
-        .month-row-odd .empty-cell { background: #f0f3f7; }
-        .month-row-odd .day-cell.weekend { background: #f3f5f8; }
+        .month-row-odd .day-cell { background: white; }
+        .month-row-odd .empty-cell { background: #E2DCE5; border: none; }
+        .month-row-odd .day-cell.weekend { background: #F7F5F9; }
 
         .week-sep { border-right: 2px solid #d0d7e0; }
 
@@ -173,12 +169,41 @@
             color: #888;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            white-space: normal;
+            word-break: break-all;
             max-width: 100%;
             padding: 0 1px;
-            margin-top: 0;
-            line-height: 1.1;
+            margin-top: 1px;
+            line-height: 1.2;
         }
+
+        .type-chips {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .type-chip {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 2px solid #e0e4e8;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.15s;
+        }
+
+        .type-chip:hover { border-color: #aaa; }
+
+        .type-chip.active-general { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
+        .type-chip.active-holiday { border-color: #e74c3c; background: #fdedec; color: #c0392b; }
+        .type-chip.active-vacation { border-color: #27ae60; background: #eafaf1; color: #1e8449; }
 
         .modal-overlay {
             display: none;
@@ -331,6 +356,11 @@
     <div class="modal">
         <div class="modal-date" id="modalDate"></div>
         <div class="modal-weekday" id="modalWeekday"></div>
+        <div class="type-chips" id="typeChips">
+            <button class="type-chip" data-type="general">כללי</button>
+            <button class="type-chip" data-type="holiday">חג</button>
+            <button class="type-chip" data-type="vacation">חופשה</button>
+        </div>
         <textarea id="modalText" placeholder="כתבי כאן..."></textarea>
         <div class="modal-buttons">
             <button class="btn btn-save" id="btnSave">שמור</button>
@@ -341,36 +371,30 @@
 </div>
 
 <script>
-    const MONTHS_HE = [
-        "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-        "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
+    var SUPABASE_URL = "https://agshutiyyoebbgtsjyfh.supabase.co";
+    var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnc2h1dGl5eW9lYmJndHNqeWZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MzUxODAsImV4cCI6MjA5MzExMTE4MH0.ieqA_oDeso09A_QwPjjUkX1CDMu6saMmpbd3I9K_cjs";
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    var MONTHS_HE = [
+        "\u05d9\u05e0\u05d5\u05d0\u05e8", "\u05e4\u05d1\u05e8\u05d5\u05d0\u05e8", "\u05de\u05e8\u05e5", "\u05d0\u05e4\u05e8\u05d9\u05dc", "\u05de\u05d0\u05d9", "\u05d9\u05d5\u05e0\u05d9",
+        "\u05d9\u05d5\u05dc\u05d9", "\u05d0\u05d5\u05d2\u05d5\u05e1\u05d8", "\u05e1\u05e4\u05d8\u05de\u05d1\u05e8", "\u05d0\u05d5\u05e7\u05d8\u05d5\u05d1\u05e8", "\u05e0\u05d5\u05d1\u05de\u05d1\u05e8", "\u05d3\u05e6\u05de\u05d1\u05e8"
     ];
 
-    const DAYS_HE = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+    var DAYS_HE = ["\u05d0\u05f3", "\u05d1\u05f3", "\u05d2\u05f3", "\u05d3\u05f3", "\u05d4\u05f3", "\u05d5\u05f3", "\u05e9\u05f3"];
 
-    const WEEKDAYS_FULL = [
-        "יום ראשון", "יום שני", "יום שלישי", "יום רביעי",
-        "יום חמישי", "יום שישי", "שבת"
+    var WEEKDAYS_FULL = [
+        "\u05d9\u05d5\u05dd \u05e8\u05d0\u05e9\u05d5\u05df", "\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9", "\u05d9\u05d5\u05dd \u05e9\u05dc\u05d9\u05e9\u05d9", "\u05d9\u05d5\u05dd \u05e8\u05d1\u05d9\u05e2\u05d9",
+        "\u05d9\u05d5\u05dd \u05d7\u05de\u05d9\u05e9\u05d9", "\u05d9\u05d5\u05dd \u05e9\u05d9\u05e9\u05d9", "\u05e9\u05d1\u05ea"
     ];
 
-    const TOTAL_COLS = 37;
+    var TOTAL_COLS = 37;
 
-    let currentYear = 2026;
-    let calendarData = {};
-    let currentEditKey = null;
-
-    function storageKey(year) { return "yearly-calendar-" + year; }
-
-    function loadData(year) {
-        try {
-            const raw = localStorage.getItem(storageKey(year));
-            return raw ? JSON.parse(raw) : {};
-        } catch(e) { return {}; }
-    }
-
-    function saveData() {
-        localStorage.setItem(storageKey(currentYear), JSON.stringify(calendarData));
-    }
+    var currentYear = 2026;
+    var calendarData = {};
+    var currentEditKey = null;
+    var currentEditMonth = null;
+    var currentEditDay = null;
+    var currentType = "general";
 
     function dataKey(month, day) { return month + "-" + day; }
 
@@ -383,34 +407,86 @@
     }
 
     function isToday(year, month, day) {
-        const now = new Date();
+        var now = new Date();
         return now.getFullYear() === year && now.getMonth() === month && now.getDate() === day;
     }
 
+    async function loadData(year) {
+        var result = {};
+        var { data, error } = await sb
+            .from("calendar_entries")
+            .select("month, day, content, type")
+            .eq("year", year);
+
+        if (data) {
+            data.forEach(function(row) {
+                result[dataKey(row.month, row.day)] = { text: row.content, type: row.type || "general" };
+            });
+        }
+        return result;
+    }
+
+    async function saveEntryToDB(year, month, day, content, type) {
+        await sb.from("calendar_entries").upsert({
+            year: year,
+            month: month,
+            day: day,
+            content: content,
+            type: type,
+            updated_at: new Date().toISOString()
+        }, { onConflict: "year,month,day" });
+    }
+
+    async function deleteEntryFromDB(year, month, day) {
+        await sb.from("calendar_entries")
+            .delete()
+            .eq("year", year)
+            .eq("month", month)
+            .eq("day", day);
+    }
+
+    async function loadNotesFromDB(year) {
+        var { data } = await sb.from("calendar_notes")
+            .select("note_type, content")
+            .eq("year", year);
+        var notes = {};
+        if (data) data.forEach(function(r) { notes[r.note_type] = r.content; });
+        return notes;
+    }
+
+    async function saveNoteToDB(year, noteType, content) {
+        await sb.from("calendar_notes").upsert({
+            year: year,
+            note_type: noteType,
+            content: content,
+            updated_at: new Date().toISOString()
+        }, { onConflict: "year,note_type" });
+    }
+
     function buildYearSelector() {
-        const select = document.getElementById("yearSelect");
-        for (let y = 2024; y <= 2035; y++) {
-            const opt = document.createElement("option");
+        var select = document.getElementById("yearSelect");
+        for (var y = 2024; y <= 2035; y++) {
+            var opt = document.createElement("option");
             opt.value = y;
             opt.textContent = y;
             if (y === currentYear) opt.selected = true;
             select.appendChild(opt);
         }
-        select.addEventListener("change", function() {
+        select.addEventListener("change", async function() {
             currentYear = parseInt(select.value);
-            calendarData = loadData(currentYear);
+            calendarData = await loadData(currentYear);
             renderCalendar();
-            loadBottomSections();
+            await loadBottomSections();
         });
     }
 
     function renderCalendar() {
-        const grid = document.getElementById("calendar");
+        var grid = document.getElementById("calendar");
         grid.innerHTML = "";
 
         var corner = document.createElement("div");
         corner.className = "corner-cell";
-        corner.textContent = "חודש";
+        corner.textContent = "\u05d7\u05d5\u05d3\u05e9";
         grid.appendChild(corner);
 
         for (var i = 0; i < TOTAL_COLS; i++) {
@@ -451,13 +527,16 @@
                     cell.appendChild(numSpan);
 
                     var key = dataKey(m, dayNum);
-                    if (calendarData[key]) {
-                        cell.classList.add("has-content");
+                    var entry = calendarData[key];
+                    if (entry && entry.text) {
+                        var dot = document.createElement("div");
+                        dot.className = "type-dot type-" + (entry.type || "general");
+                        cell.appendChild(dot);
                         var preview = document.createElement("div");
                         preview.className = "content-preview";
-                        preview.textContent = calendarData[key];
+                        preview.textContent = entry.text;
                         cell.appendChild(preview);
-                        cell.title = calendarData[key];
+                        cell.title = entry.text;
                     }
 
                     if (isToday(currentYear, m, dayNum)) {
@@ -480,6 +559,8 @@
     function openEditor(month, day) {
         var key = dataKey(month, day);
         currentEditKey = key;
+        currentEditMonth = month;
+        currentEditDay = day;
 
         var dow = new Date(currentYear, month, day).getDay();
 
@@ -487,14 +568,30 @@
             day + " " + MONTHS_HE[month] + " " + currentYear;
         document.getElementById("modalWeekday").textContent = WEEKDAYS_FULL[dow];
 
-        var textarea = document.getElementById("modalText");
-        textarea.value = calendarData[key] || "";
+        var entry = calendarData[key];
+        var text = "";
+        currentType = "general";
 
-        var deleteBtn = document.getElementById("btnDelete");
-        deleteBtn.style.display = calendarData[key] ? "block" : "none";
+        if (entry) {
+            text = entry.text || "";
+            currentType = entry.type || "general";
+        }
 
+        document.getElementById("modalText").value = text;
+        updateChipsUI();
+
+        document.getElementById("btnDelete").style.display = text ? "block" : "none";
         document.getElementById("modalOverlay").classList.add("active");
-        setTimeout(function() { textarea.focus(); }, 100);
+        setTimeout(function() { document.getElementById("modalText").focus(); }, 100);
+    }
+
+    function updateChipsUI() {
+        document.querySelectorAll(".type-chip").forEach(function(chip) {
+            chip.className = "type-chip";
+            if (chip.dataset.type === currentType) {
+                chip.classList.add("active-" + currentType);
+            }
+        });
     }
 
     function closeEditor() {
@@ -502,44 +599,54 @@
         currentEditKey = null;
     }
 
-    function saveEntry() {
+    async function saveEntry() {
         var text = document.getElementById("modalText").value.trim();
         if (text) {
-            calendarData[currentEditKey] = text;
+            calendarData[currentEditKey] = { text: text, type: currentType };
+            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, currentType);
         } else {
             delete calendarData[currentEditKey];
+            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
         }
-        saveData();
         closeEditor();
         renderCalendar();
     }
 
-    function deleteEntry() {
+    async function deleteEntry() {
         delete calendarData[currentEditKey];
-        saveData();
+        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
         closeEditor();
         renderCalendar();
     }
 
-    function loadBottomSections() {
-        var planKey = "yearly-plan-" + currentYear;
-        var goalsKey = "yearly-goals-" + currentYear;
-        document.getElementById("yearlyPlan").value = localStorage.getItem(planKey) || "";
-        document.getElementById("yearlyGoals").value = localStorage.getItem(goalsKey) || "";
+    async function loadBottomSections() {
+        var notes = await loadNotesFromDB(currentYear);
+        document.getElementById("yearlyPlan").value = notes["plan"] || "";
+        document.getElementById("yearlyGoals").value = notes["goals"] || "";
     }
 
+    var noteTimer = null;
     function setupBottomSections() {
         document.getElementById("yearlyPlan").addEventListener("input", function(e) {
-            localStorage.setItem("yearly-plan-" + currentYear, e.target.value);
+            clearTimeout(noteTimer);
+            noteTimer = setTimeout(function() { saveNoteToDB(currentYear, "plan", e.target.value); }, 500);
         });
         document.getElementById("yearlyGoals").addEventListener("input", function(e) {
-            localStorage.setItem("yearly-goals-" + currentYear, e.target.value);
+            clearTimeout(noteTimer);
+            noteTimer = setTimeout(function() { saveNoteToDB(currentYear, "goals", e.target.value); }, 500);
         });
     }
 
     document.getElementById("btnSave").addEventListener("click", saveEntry);
     document.getElementById("btnCancel").addEventListener("click", closeEditor);
     document.getElementById("btnDelete").addEventListener("click", deleteEntry);
+
+    document.querySelectorAll(".type-chip").forEach(function(chip) {
+        chip.addEventListener("click", function() {
+            currentType = chip.dataset.type;
+            updateChipsUI();
+        });
+    });
 
     document.getElementById("modalOverlay").addEventListener("click", function(e) {
         if (e.target === e.currentTarget) closeEditor();
@@ -552,10 +659,13 @@
     });
 
     buildYearSelector();
-    calendarData = loadData(currentYear);
-    renderCalendar();
-    loadBottomSections();
     setupBottomSections();
+
+    (async function() {
+        calendarData = await loadData(currentYear);
+        renderCalendar();
+        await loadBottomSections();
+    })();
 </script>
 
 </body>
