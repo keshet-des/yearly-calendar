@@ -242,11 +242,13 @@
         .modal-top-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             margin-bottom: 16px;
+            position: relative;
         }
 
         .modal-close {
+            position: absolute;
+            left: 0;
             background: none;
             border: none;
             font-size: 22px;
@@ -260,6 +262,8 @@
             font-size: 18px;
             font-weight: 700;
             color: #1a1a1a;
+            width: 100%;
+            text-align: center;
         }
 
         .modal-toolbar {
@@ -267,6 +271,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 14px;
+            direction: ltr;
         }
 
         .modal-tabs {
@@ -462,13 +467,13 @@
         .date-picker-overlay {
             display: none;
             position: absolute;
-            top: 70px;
-            left: 28px;
+            top: 60px;
+            left: 24px;
             z-index: 10;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-            padding: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 20px 16px 16px;
             direction: rtl;
         }
 
@@ -538,14 +543,56 @@
             cursor: pointer;
             color: #333;
             transition: background 0.1s;
+            position: relative;
         }
 
         .dp-day:hover { background: #f0f0f0; }
 
-        .dp-day.selected { background: #FFDD28; font-weight: 700; }
-        .dp-day.in-range { background: #FFF8D6; }
+        .dp-day.selected {
+            background: #FFDD28;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .dp-day.range-start {
+            background: #FFDD28;
+            font-weight: 700;
+            border-radius: 50% 0 0 50%;
+            z-index: 1;
+        }
+
+        .dp-day.range-end {
+            background: #FFDD28;
+            font-weight: 700;
+            border-radius: 0 50% 50% 0;
+            z-index: 1;
+        }
+
+        .dp-day.in-range {
+            background: #FFF3B0;
+            border-radius: 0;
+        }
+
+        .dp-day.default-day {
+            background: #FFDD28;
+            font-weight: 700;
+            cursor: default;
+        }
+
         .dp-day.empty { cursor: default; }
         .dp-day.empty:hover { background: none; }
+
+        .dp-close-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
 
         .bottom-sections {
             display: none;
@@ -853,8 +900,25 @@
 
     var dpStartDate = null;
     var dpEndDate = null;
+    var dpDefaultDate = null;
     var dpViewMonth = null;
     var dpViewYear = null;
+
+    function findHolidayDateRange(holidayText, month) {
+        var startDay = null, endDay = null;
+        for (var d = 1; d <= getDaysInMonth(currentYear, month); d++) {
+            var k = dataKey(month, d);
+            var e = calendarData[k];
+            if (e && e.type === "holiday" && e.text === holidayText) {
+                if (startDay === null) startDay = d;
+                endDay = d;
+            }
+        }
+        if (startDay === null) return "";
+        var sm = String(month + 1).padStart(2, "0");
+        if (startDay === endDay) return String(startDay).padStart(2, "0") + "." + sm;
+        return String(startDay).padStart(2, "0") + "." + sm + " - " + String(endDay).padStart(2, "0") + "." + sm;
+    }
 
     function openEditor(month, day) {
         var key = dataKey(month, day);
@@ -874,8 +938,10 @@
         currentType = "general";
 
         if (entry) {
-            text = entry.text || "";
             currentType = entry.type || "general";
+            if (currentType !== "holiday") {
+                text = entry.text || "";
+            }
         }
         if (currentType === "holiday") currentType = "general";
 
@@ -883,6 +949,7 @@
 
         dpStartDate = new Date(currentYear, month, day);
         dpEndDate = new Date(currentYear, month, day);
+        dpDefaultDate = new Date(currentYear, month, day);
         dpViewMonth = month;
         dpViewYear = currentYear;
 
@@ -891,6 +958,7 @@
         if (holidayEntry && holidayEntry.type === "holiday") {
             holidaySection.classList.add("visible");
             document.getElementById("holidayName").textContent = holidayEntry.text;
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(holidayEntry.text, month);
             document.getElementById("holidayToggle").checked = true;
         } else {
             holidaySection.classList.remove("visible");
@@ -920,7 +988,8 @@
         var y2 = y1;
         if (m2 > 11) { m2 = 0; y2 = y1 + 1; }
 
-        var html = '<div class="dp-header">';
+        var html = '<button class="dp-close-btn" id="dpCloseBtn">&times;</button>';
+        html += '<div class="dp-header">';
         html += '<button id="dpNext">&lt;</button>';
         html += '<span>' + MONTHS_HE_FULL[m1] + ' ' + y1 + ' - ' + MONTHS_HE_FULL[m2] + ' ' + y2 + '</span>';
         html += '<button id="dpPrev">&gt;</button>';
@@ -930,6 +999,10 @@
         html += renderDPMonth(y2, m2);
         html += '</div>';
         dp.innerHTML = html;
+
+        dp.querySelector("#dpCloseBtn").addEventListener("click", function() {
+            dp.classList.remove("active");
+        });
 
         dp.querySelector("#dpPrev").addEventListener("click", function() {
             dpViewMonth--;
@@ -942,19 +1015,16 @@
             renderDatePicker();
         });
 
-        dp.querySelectorAll(".dp-day:not(.empty)").forEach(function(dayEl) {
+        dp.querySelectorAll(".dp-day:not(.empty):not(.default-day)").forEach(function(dayEl) {
             dayEl.addEventListener("click", function() {
                 var d = new Date(parseInt(dayEl.dataset.year), parseInt(dayEl.dataset.month), parseInt(dayEl.dataset.day));
-                if (!dpStartDate || (dpStartDate && dpEndDate && dpEndDate.getTime() !== dpStartDate.getTime())) {
+                if (dpDefaultDate && d.getTime() === dpDefaultDate.getTime()) return;
+                if (d < dpDefaultDate) {
                     dpStartDate = d;
-                    dpEndDate = d;
+                    dpEndDate = dpDefaultDate;
                 } else {
-                    if (d < dpStartDate) {
-                        dpEndDate = dpStartDate;
-                        dpStartDate = d;
-                    } else {
-                        dpEndDate = d;
-                    }
+                    dpStartDate = dpDefaultDate;
+                    dpEndDate = d;
                 }
                 renderDatePicker();
             });
@@ -973,10 +1043,24 @@
         for (var i = 0; i < firstDay; i++) html += '<div class="dp-day empty"></div>';
         for (var d = 1; d <= days; d++) {
             var date = new Date(year, month, d);
+            var isDefault = dpDefaultDate && date.getTime() === dpDefaultDate.getTime();
+            var isStart = dpStartDate && date.getTime() === dpStartDate.getTime();
+            var isEnd = dpEndDate && date.getTime() === dpEndDate.getTime();
+            var isInRange = dpStartDate && dpEndDate && date > dpStartDate && date < dpEndDate;
+            var hasRange = dpStartDate && dpEndDate && dpStartDate.getTime() !== dpEndDate.getTime();
+
             var cls = "dp-day";
-            if (dpStartDate && date.getTime() === dpStartDate.getTime()) cls += " selected";
-            else if (dpEndDate && date.getTime() === dpEndDate.getTime()) cls += " selected";
-            else if (dpStartDate && dpEndDate && date > dpStartDate && date < dpEndDate) cls += " in-range";
+            if (isDefault && !hasRange) {
+                cls += " default-day selected";
+            } else if (isStart && hasRange) {
+                cls += " range-start";
+            } else if (isEnd && hasRange) {
+                cls += " range-end";
+            } else if (isDefault) {
+                cls += " default-day selected";
+            } else if (isInRange) {
+                cls += " in-range";
+            }
             html += '<div class="' + cls + '" data-year="' + year + '" data-month="' + month + '" data-day="' + d + '">' + d + '</div>';
         }
         html += '</div></div>';
