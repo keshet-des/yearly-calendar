@@ -129,8 +129,7 @@
         }
 
         .day-cell:hover {
-            background: #d6eaf8;
-            box-shadow: inset 0 0 0 2px #3498db;
+            background: #FFF1A9;
             z-index: 1;
         }
 
@@ -139,24 +138,26 @@
             height: 4px;
             border-radius: 50%;
             position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 2px;
+            left: 2px;
         }
 
         .type-dot.type-general { background: #3498db; }
         .type-dot.type-holiday { background: #e74c3c; }
-        .type-dot.type-vacation { background: #27ae60; }
+        .type-dot.type-vacation { background: #45EDCC; }
+
+        .day-cell.vacation-cell { background: #D8FEF7 !important; }
 
         .day-cell.today {
-            background: #fef9e7;
-            box-shadow: inset 0 0 0 2px #f39c12;
+            background: #FFF1A9 !important;
+            box-shadow: inset 0 0 0 2px #FFDD28;
             z-index: 1;
         }
 
         .day-cell.weekend { background: #F7F5F9; }
 
-        .empty-cell { background: #E2DCE5; overflow: hidden; border: none; outline: none; box-shadow: none; }
+        .empty-cell { background: #E2DCE5; overflow: hidden; border: none; outline: none; box-shadow: none; border-width: 0; }
+        .calendar .empty-cell { border: 0 !important; }
 
         .month-row-odd .day-cell { background: white; }
         .month-row-odd .empty-cell { background: #E2DCE5; border: none; }
@@ -165,8 +166,8 @@
         .week-sep { border-right: 2px solid #d0d7e0; }
 
         .content-preview {
-            font-size: 7px;
-            color: #888;
+            font-size: 12px;
+            color: #000;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
@@ -203,7 +204,7 @@
 
         .type-chip.active-general { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
         .type-chip.active-holiday { border-color: #e74c3c; background: #fdedec; color: #c0392b; }
-        .type-chip.active-vacation { border-color: #27ae60; background: #eafaf1; color: #1e8449; }
+        .type-chip.active-vacation { border-color: #45EDCC; background: #D8FEF7; color: #1a9e7e; }
 
         .modal-overlay {
             display: none;
@@ -360,6 +361,12 @@
             <button class="type-chip" data-type="general">כללי</button>
             <button class="type-chip" data-type="holiday">חג</button>
             <button class="type-chip" data-type="vacation">חופשה</button>
+        </div>
+        <div class="date-range" id="dateRange" style="display:none; margin-bottom:12px;">
+            <label style="font-size:13px; color:#555; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                מתאריך <input type="date" id="vacStart" style="padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-family:inherit;">
+                עד <input type="date" id="vacEnd" style="padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-family:inherit;">
+            </label>
         </div>
         <textarea id="modalText" placeholder="כתבי כאן..."></textarea>
         <div class="modal-buttons">
@@ -529,8 +536,10 @@
                     var key = dataKey(m, dayNum);
                     var entry = calendarData[key];
                     if (entry && entry.text) {
+                        var entryType = entry.type || "general";
+                        if (entryType === "vacation") cell.classList.add("vacation-cell");
                         var dot = document.createElement("div");
-                        dot.className = "type-dot type-" + (entry.type || "general");
+                        dot.className = "type-dot type-" + entryType;
                         cell.appendChild(dot);
                         var preview = document.createElement("div");
                         preview.className = "content-preview";
@@ -578,6 +587,11 @@
         }
 
         document.getElementById("modalText").value = text;
+
+        var dateStr = currentYear + "-" + String(month+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+        document.getElementById("vacStart").value = dateStr;
+        document.getElementById("vacEnd").value = dateStr;
+
         updateChipsUI();
 
         document.getElementById("btnDelete").style.display = text ? "block" : "none";
@@ -592,6 +606,7 @@
                 chip.classList.add("active-" + currentType);
             }
         });
+        document.getElementById("dateRange").style.display = currentType === "vacation" ? "block" : "none";
     }
 
     function closeEditor() {
@@ -601,7 +616,25 @@
 
     async function saveEntry() {
         var text = document.getElementById("modalText").value.trim();
-        if (text) {
+
+        if (currentType === "vacation" && text) {
+            var startDate = new Date(document.getElementById("vacStart").value);
+            var endDate = new Date(document.getElementById("vacEnd").value);
+            if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) {
+                endDate = startDate;
+            }
+            var promises = [];
+            var d = new Date(startDate);
+            while (d <= endDate) {
+                var m = d.getMonth();
+                var dd = d.getDate();
+                var key = dataKey(m, dd);
+                calendarData[key] = { text: text, type: "vacation" };
+                promises.push(saveEntryToDB(d.getFullYear(), m, dd, text, "vacation"));
+                d.setDate(d.getDate() + 1);
+            }
+            await Promise.all(promises);
+        } else if (text) {
             calendarData[currentEditKey] = { text: text, type: currentType };
             await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, currentType);
         } else {
