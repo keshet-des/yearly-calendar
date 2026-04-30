@@ -737,14 +737,18 @@
         var result = {};
         var { data, error } = await sb
             .from("calendar_entries")
-            .select("month, day, content, type")
+            .select("month, day, content, type, hidden")
             .eq("year", year);
 
         if (data) {
             data.forEach(function(row) {
                 var key = dataKey(row.month, row.day);
                 if (!result[key]) result[key] = {};
-                result[key][row.type || "general"] = row.content;
+                if (row.type === "holiday" && row.hidden) {
+                    result[key]._holidayHidden = row.content;
+                } else {
+                    result[key][row.type || "general"] = row.content;
+                }
             });
         }
         return result;
@@ -987,6 +991,11 @@
             document.getElementById("holidayName").textContent = entries.holiday;
             document.getElementById("holidayDates").textContent = findHolidayDateRange(entries.holiday, month);
             document.getElementById("holidayToggle").checked = true;
+        } else if (entries._holidayHidden) {
+            holidaySection.classList.add("visible");
+            document.getElementById("holidayName").textContent = entries._holidayHidden;
+            document.getElementById("holidayDates").textContent = "";
+            document.getElementById("holidayToggle").checked = false;
         } else {
             holidaySection.classList.remove("visible");
         }
@@ -1083,8 +1092,32 @@
         currentEditKey = null;
     }
 
+    async function toggleHolidayVisibility(year, month, day, hidden) {
+        await sb.from("calendar_entries")
+            .update({ hidden: hidden })
+            .eq("year", year)
+            .eq("month", month)
+            .eq("day", day)
+            .eq("type", "holiday");
+    }
+
     async function saveEntry() {
         var text = document.getElementById("modalText").value.trim();
+
+        var holidaySection = document.getElementById("holidaySection");
+        if (holidaySection.classList.contains("visible")) {
+            var toggle = document.getElementById("holidayToggle");
+            var entries = calendarData[currentEditKey] || {};
+            if (!toggle.checked && entries.holiday) {
+                entries._holidayHidden = entries.holiday;
+                delete entries.holiday;
+                await toggleHolidayVisibility(currentYear, currentEditMonth, currentEditDay, true);
+            } else if (toggle.checked && entries._holidayHidden) {
+                entries.holiday = entries._holidayHidden;
+                delete entries._holidayHidden;
+                await toggleHolidayVisibility(currentYear, currentEditMonth, currentEditDay, false);
+            }
+        }
 
         if (currentType === "vacation" && text) {
             var startDate = dpStartDate || new Date(currentYear, currentEditMonth, currentEditDay);
