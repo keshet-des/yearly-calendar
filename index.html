@@ -887,6 +887,19 @@
                 grid.appendChild(cell);
             }
         }
+
+        requestAnimationFrame(trimPreviews);
+    }
+
+    function trimPreviews() {
+        document.querySelectorAll(".content-preview").forEach(function(el) {
+            var original = el.dataset.full || el.textContent;
+            el.dataset.full = original;
+            el.textContent = original;
+            while (el.scrollWidth > el.clientWidth && el.textContent.length > 0) {
+                el.textContent = el.textContent.slice(0, -1);
+            }
+        });
     }
 
     var dpStartDate = null;
