@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לוח תכנון שנתי</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 6px 20px;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .app-header h1 {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .year-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .year-selector select {
+            font-size: 14px;
+            padding: 2px 6px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            background: white;
+            color: #2c3e50;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .calendar-wrapper {
+            padding: 8px;
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: 56px repeat(37, minmax(28px, 1fr));
+            grid-template-rows: auto repeat(12, 1fr);
+            gap: 1px;
+            background: #c0c7d0;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .corner-cell {
+            background: #2c3e50;
+            padding: 3px 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 9px;
+        }
+
+        .day-header {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 3px 2px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .day-header.shabbat { background: #1a252f; color: #f5c542; }
+        .day-header.friday  { background: #253545; }
+        .day-header.week-sep { border-right: 2px solid #1a252f; }
+
+        .month-label {
+            background: #3498db;
+            color: white;
+            padding: 2px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+
+        .month-row-odd .month-label { background: #2980b9; }
+
+        .day-cell {
+            background: white;
+            cursor: pointer;
+            position: relative;
+            text-align: right;
+            font-size: 10px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 2px 3px;
+            transition: background 0.12s, box-shadow 0.12s;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .day-cell:hover {
+            background: #d6eaf8;
+            box-shadow: inset 0 0 0 2px #3498db;
+            z-index: 1;
+        }
+
+        .day-cell.has-content { background: #eafaf1; }
+        .day-cell.has-content:hover {
+            background: #d1f2e0;
+            box-shadow: inset 0 0 0 2px #27ae60;
+        }
+
+        .day-cell.has-content::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: #27ae60;
+            border-radius: 50%;
+        }
+
+        .day-cell.today {
+            background: #fef9e7;
+            box-shadow: inset 0 0 0 2px #f39c12;
+            z-index: 1;
+        }
+
+        .day-cell.weekend { background: #f8f9fa; }
+        .day-cell.weekend.has-content { background: #e8f6ef; }
+
+        .empty-cell { background: #f4f6f8; overflow: hidden; }
+
+        .month-row-odd .day-cell { background: #fafcff; }
+        .month-row-odd .day-cell.has-content { background: #e7f9ef; }
+        .month-row-odd .empty-cell { background: #f0f3f7; }
+        .month-row-odd .day-cell.weekend { background: #f3f5f8; }
+
+        .week-sep { border-right: 2px solid #d0d7e0; }
+
+        .content-preview {
+            font-size: 7px;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            padding: 0 1px;
+            margin-top: 0;
+            line-height: 1.1;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-date {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .modal-weekday {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 16px;
+        }
+
+        .modal textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid #e0e4e8;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            direction: rtl;
+            line-height: 1.6;
+        }
+
+        .modal textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 9px 22px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 600;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-save { background: #27ae60; color: white; }
+        .btn-save:hover { background: #219a52; }
+
+        .btn-cancel { background: #ecf0f1; color: #555; }
+        .btn-cancel:hover { background: #dde4e6; }
+
+        .btn-delete { background: #e74c3c; color: white; margin-right: auto; }
+        .btn-delete:hover { background: #c0392b; }
+
+        .bottom-sections {
+            display: none;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .section-card h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        .section-card textarea {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #e0e4e8;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            direction: rtl;
+            line-height: 1.6;
+        }
+
+        .section-card textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1>לוח תכנון שנתי</h1>
+    <span class="year-selector">| לשנת <select id="yearSelect"></select></span>
+</div>
+
+<div class="calendar-wrapper">
+    <div class="calendar" id="calendar"></div>
+</div>
+
+<div class="bottom-sections">
+    <div class="section-card">
+        <h3>תכנית שנתית</h3>
+        <textarea id="yearlyPlan" placeholder="מה התכניות לשנה הזו?"></textarea>
+    </div>
+    <div class="section-card">
+        <h3>השנה אני...</h3>
+        <textarea id="yearlyGoals" placeholder="השנה אני הולכת ל..."></textarea>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-date" id="modalDate"></div>
+        <div class="modal-weekday" id="modalWeekday"></div>
+        <textarea id="modalText" placeholder="כתבי כאן..."></textarea>
+        <div class="modal-buttons">
+            <button class="btn btn-save" id="btnSave">שמור</button>
+            <button class="btn btn-cancel" id="btnCancel">ביטול</button>
+            <button class="btn btn-delete" id="btnDelete">מחק</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const MONTHS_HE = [
+        "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+        "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
+    ];
+
+    const DAYS_HE = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+
+    const WEEKDAYS_FULL = [
+        "יום ראשון", "יום שני", "יום שלישי", "יום רביעי",
+        "יום חמישי", "יום שישי", "שבת"
+    ];
+
+    const TOTAL_COLS = 37;
+
+    let currentYear = 2026;
+    let calendarData = {};
+    let currentEditKey = null;
+
+    function storageKey(year) { return "yearly-calendar-" + year; }
+
+    function loadData(year) {
+        try {
+            const raw = localStorage.getItem(storageKey(year));
+            return raw ? JSON.parse(raw) : {};
+        } catch(e) { return {}; }
+    }
+
+    function saveData() {
+        localStorage.setItem(storageKey(currentYear), JSON.stringify(calendarData));
+    }
+
+    function dataKey(month, day) { return month + "-" + day; }
+
+    function getDaysInMonth(year, month) {
+        return new Date(year, month + 1, 0).getDate();
+    }
+
+    function getFirstDayOfWeek(year, month) {
+        return new Date(year, month, 1).getDay();
+    }
+
+    function isToday(year, month, day) {
+        const now = new Date();
+        return now.getFullYear() === year && now.getMonth() === month && now.getDate() === day;
+    }
+
+    function buildYearSelector() {
+        const select = document.getElementById("yearSelect");
+        for (let y = 2024; y <= 2035; y++) {
+            const opt = document.createElement("option");
+            opt.value = y;
+            opt.textContent = y;
+            if (y === currentYear) opt.selected = true;
+            select.appendChild(opt);
+        }
+        select.addEventListener("change", function() {
+            currentYear = parseInt(select.value);
+            calendarData = loadData(currentYear);
+            renderCalendar();
+            loadBottomSections();
+        });
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById("calendar");
+        grid.innerHTML = "";
+
+        var corner = document.createElement("div");
+        corner.className = "corner-cell";
+        corner.textContent = "חודש";
+        grid.appendChild(corner);
+
+        for (var i = 0; i < TOTAL_COLS; i++) {
+            var hdr = document.createElement("div");
+            hdr.className = "day-header";
+            hdr.textContent = DAYS_HE[i % 7];
+            if (i % 7 === 6) hdr.classList.add("shabbat");
+            if (i % 7 === 5) hdr.classList.add("friday");
+            if (i > 0 && i % 7 === 0) hdr.classList.add("week-sep");
+            grid.appendChild(hdr);
+        }
+
+        for (var m = 0; m < 12; m++) {
+            var isOdd = m % 2 === 1;
+            var firstDay = getFirstDayOfWeek(currentYear, m);
+            var days = getDaysInMonth(currentYear, m);
+
+            var label = document.createElement("div");
+            label.className = "month-label";
+            if (isOdd) label.classList.add("month-row-odd");
+            label.textContent = MONTHS_HE[m];
+            grid.appendChild(label);
+
+            for (var col = 0; col < TOTAL_COLS; col++) {
+                var dayNum = col - firstDay + 1;
+                var cell = document.createElement("div");
+                var weekday = col % 7;
+
+                if (col > 0 && col % 7 === 0) cell.classList.add("week-sep");
+
+                if (dayNum >= 1 && dayNum <= days) {
+                    cell.className = "day-cell";
+                    if (isOdd) cell.classList.add("month-row-odd");
+                    if (weekday === 5 || weekday === 6) cell.classList.add("weekend");
+
+                    var numSpan = document.createElement("span");
+                    numSpan.textContent = dayNum;
+                    cell.appendChild(numSpan);
+
+                    var key = dataKey(m, dayNum);
+                    if (calendarData[key]) {
+                        cell.classList.add("has-content");
+                        var preview = document.createElement("div");
+                        preview.className = "content-preview";
+                        preview.textContent = calendarData[key];
+                        cell.appendChild(preview);
+                        cell.title = calendarData[key];
+                    }
+
+                    if (isToday(currentYear, m, dayNum)) {
+                        cell.classList.add("today");
+                    }
+
+                    (function(mm, dd) {
+                        cell.addEventListener("click", function() { openEditor(mm, dd); });
+                    })(m, dayNum);
+                } else {
+                    cell.className = "empty-cell";
+                    if (isOdd) cell.classList.add("month-row-odd");
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function openEditor(month, day) {
+        var key = dataKey(month, day);
+        currentEditKey = key;
+
+        var dow = new Date(currentYear, month, day).getDay();
+
+        document.getElementById("modalDate").textContent =
+            day + " " + MONTHS_HE[month] + " " + currentYear;
+        document.getElementById("modalWeekday").textContent = WEEKDAYS_FULL[dow];
+
+        var textarea = document.getElementById("modalText");
+        textarea.value = calendarData[key] || "";
+
+        var deleteBtn = document.getElementById("btnDelete");
+        deleteBtn.style.display = calendarData[key] ? "block" : "none";
+
+        document.getElementById("modalOverlay").classList.add("active");
+        setTimeout(function() { textarea.focus(); }, 100);
+    }
+
+    function closeEditor() {
+        document.getElementById("modalOverlay").classList.remove("active");
+        currentEditKey = null;
+    }
+
+    function saveEntry() {
+        var text = document.getElementById("modalText").value.trim();
+        if (text) {
+            calendarData[currentEditKey] = text;
+        } else {
+            delete calendarData[currentEditKey];
+        }
+        saveData();
+        closeEditor();
+        renderCalendar();
+    }
+
+    function deleteEntry() {
+        delete calendarData[currentEditKey];
+        saveData();
+        closeEditor();
+        renderCalendar();
+    }
+
+    function loadBottomSections() {
+        var planKey = "yearly-plan-" + currentYear;
+        var goalsKey = "yearly-goals-" + currentYear;
+        document.getElementById("yearlyPlan").value = localStorage.getItem(planKey) || "";
+        document.getElementById("yearlyGoals").value = localStorage.getItem(goalsKey) || "";
+    }
+
+    function setupBottomSections() {
+        document.getElementById("yearlyPlan").addEventListener("input", function(e) {
+            localStorage.setItem("yearly-plan-" + currentYear, e.target.value);
+        });
+        document.getElementById("yearlyGoals").addEventListener("input", function(e) {
+            localStorage.setItem("yearly-goals-" + currentYear, e.target.value);
+        });
+    }
+
+    document.getElementById("btnSave").addEventListener("click", saveEntry);
+    document.getElementById("btnCancel").addEventListener("click", closeEditor);
+    document.getElementById("btnDelete").addEventListener("click", deleteEntry);
+
+    document.getElementById("modalOverlay").addEventListener("click", function(e) {
+        if (e.target === e.currentTarget) closeEditor();
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (!document.getElementById("modalOverlay").classList.contains("active")) return;
+        if (e.key === "Escape") closeEditor();
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveEntry();
+    });
+
+    buildYearSelector();
+    calendarData = loadData(currentYear);
+    renderCalendar();
+    loadBottomSections();
+    setupBottomSections();
+</script>
+
+</body>
+</html>
