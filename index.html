@@ -11,7 +11,7 @@
 
         body {
             font-family: 'Heebo', sans-serif;
-            background: #FFDD28;
+            background: #000000;
             color: #333;
             height: 100vh;
             display: flex;
@@ -87,14 +87,7 @@
         }
 
         .corner-cell {
-            background: #66606A;
-            padding: 3px 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,0.9);
-            font-size: 9px;
-            border-radius: 4px;
+            background: transparent;
         }
 
         .day-header {
@@ -807,7 +800,6 @@
 
         var corner = document.createElement("div");
         corner.className = "corner-cell";
-        corner.textContent = "\u05d7\u05d5\u05d3\u05e9";
         grid.appendChild(corner);
 
         for (var i = 0; i < TOTAL_COLS; i++) {
