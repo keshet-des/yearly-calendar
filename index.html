@@ -896,7 +896,11 @@
             var original = el.dataset.full || el.textContent;
             el.dataset.full = original;
             el.textContent = original;
+            if (el.scrollWidth <= el.clientWidth) return;
             while (el.scrollWidth > el.clientWidth && el.textContent.length > 0) {
+                el.textContent = el.textContent.slice(0, -1);
+            }
+            if (el.textContent.length < original.length && el.textContent.length > 0) {
                 el.textContent = el.textContent.slice(0, -1);
             }
         });
