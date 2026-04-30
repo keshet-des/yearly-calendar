@@ -207,6 +207,11 @@
             line-height: 13px;
         }
 
+        .content-preview.holiday-preview {
+            -webkit-line-clamp: 1;
+            text-overflow: clip;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -478,22 +483,6 @@
         }
 
         .date-picker-overlay.active { display: block; }
-
-        .dp-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .dp-header button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: #333;
-            padding: 4px 8px;
-        }
 
         .dp-months {
             display: flex;
@@ -874,8 +863,10 @@
                     cell.appendChild(dateRow);
 
                     if (entry && entry.text) {
+                        var entryType2 = entry.type || "general";
                         var preview = document.createElement("div");
                         preview.className = "content-preview";
+                        if (entryType2 === "holiday") preview.classList.add("holiday-preview");
                         preview.textContent = entry.text;
                         cell.appendChild(preview);
                         cell.title = entry.text;
@@ -989,11 +980,6 @@
         if (m2 > 11) { m2 = 0; y2 = y1 + 1; }
 
         var html = '<button class="dp-close-btn" id="dpCloseBtn">&times;</button>';
-        html += '<div class="dp-header">';
-        html += '<button id="dpNext">&lt;</button>';
-        html += '<span>' + MONTHS_HE_FULL[m1] + ' ' + y1 + ' - ' + MONTHS_HE_FULL[m2] + ' ' + y2 + '</span>';
-        html += '<button id="dpPrev">&gt;</button>';
-        html += '</div>';
         html += '<div class="dp-months">';
         html += renderDPMonth(y1, m1);
         html += renderDPMonth(y2, m2);
@@ -1002,17 +988,6 @@
 
         dp.querySelector("#dpCloseBtn").addEventListener("click", function() {
             dp.classList.remove("active");
-        });
-
-        dp.querySelector("#dpPrev").addEventListener("click", function() {
-            dpViewMonth--;
-            if (dpViewMonth < 0) { dpViewMonth = 11; dpViewYear--; }
-            renderDatePicker();
-        });
-        dp.querySelector("#dpNext").addEventListener("click", function() {
-            dpViewMonth++;
-            if (dpViewMonth > 11) { dpViewMonth = 0; dpViewYear++; }
-            renderDatePicker();
         });
 
         dp.querySelectorAll(".dp-day:not(.empty):not(.default-day)").forEach(function(dayEl) {
