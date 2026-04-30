@@ -203,30 +203,100 @@
             line-height: 13px;
         }
 
-        .type-chips {
+        .modal-tabs {
             display: flex;
-            gap: 8px;
+            gap: 0;
+            margin-bottom: 16px;
+            border-bottom: 1.5px solid #e0e4e8;
+        }
+
+        .modal-tab {
+            padding: 8px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2.5px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            color: #999;
+            transition: all 0.15s;
+            margin-bottom: -1.5px;
+        }
+
+        .modal-tab:hover { color: #555; }
+
+        .modal-tab.active {
+            color: #8B59FF;
+            border-bottom-color: #8B59FF;
+            font-weight: 600;
+        }
+
+        .holiday-section {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .holiday-section.visible { display: block; }
+
+        .holiday-divider {
+            height: 1px;
+            background: #e0e4e8;
             margin-bottom: 12px;
         }
 
-        .type-chip {
-            padding: 5px 14px;
-            border-radius: 20px;
-            border: 2px solid #e0e4e8;
-            background: white;
-            cursor: pointer;
-            font-size: 13px;
-            font-family: inherit;
-            font-weight: 500;
-            color: #555;
-            transition: all 0.15s;
+        .holiday-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .type-chip:hover { border-color: #aaa; }
+        .holiday-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
 
-        .type-chip.active-general { border-color: #3498db; background: #ebf5fb; color: #2980b9; }
-        .type-chip.active-holiday { border-color: #e74c3c; background: #fdedec; color: #c0392b; }
-        .type-chip.active-vacation { border-color: #45EDCC; background: #D8FEF7; color: #1a9e7e; }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #C5BDCA;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            right: 3px;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: #8B59FF;
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(-20px);
+        }
 
         .modal-overlay {
             display: none;
@@ -256,17 +326,12 @@
             to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .modal-date {
-            font-size: 20px;
-            font-weight: 700;
+        .modal-header {
+            text-align: right;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 4px;
-        }
-
-        .modal-weekday {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 16px;
         }
 
         .modal textarea {
@@ -290,31 +355,50 @@
 
         .modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 16px;
+            margin-top: 20px;
+            justify-content: flex-end;
         }
 
         .btn {
-            padding: 9px 22px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
             font-family: inherit;
             font-weight: 600;
-            transition: background 0.15s, transform 0.1s;
+            transition: opacity 0.15s, transform 0.1s;
         }
 
         .btn:active { transform: scale(0.97); }
 
-        .btn-save { background: #27ae60; color: white; }
-        .btn-save:hover { background: #219a52; }
+        .btn-save {
+            height: 40px;
+            padding: 0 28px;
+            background: #8B59FF;
+            color: white;
+            font-size: 17px;
+        }
+        .btn-save:hover { opacity: 0.9; }
 
-        .btn-cancel { background: #ecf0f1; color: #555; }
-        .btn-cancel:hover { background: #dde4e6; }
+        .btn-cancel {
+            height: 40px;
+            padding: 0 28px;
+            background: transparent;
+            color: #8B59FF;
+            font-size: 17px;
+            border: 1.2px solid #8B59FF;
+        }
+        .btn-cancel:hover { background: rgba(139,89,255,0.05); }
 
-        .btn-delete { background: #e74c3c; color: white; margin-right: auto; }
-        .btn-delete:hover { background: #c0392b; }
+        .btn-delete {
+            height: 40px;
+            padding: 0 20px;
+            background: #e74c3c;
+            color: white;
+            font-size: 14px;
+            margin-left: auto;
+        }
+        .btn-delete:hover { opacity: 0.9; }
 
         .bottom-sections {
             display: none;
@@ -380,12 +464,10 @@
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <div class="modal-date" id="modalDate"></div>
-        <div class="modal-weekday" id="modalWeekday"></div>
-        <div class="type-chips" id="typeChips">
-            <button class="type-chip" data-type="general">כללי</button>
-            <button class="type-chip" data-type="holiday">חג</button>
-            <button class="type-chip" data-type="vacation">חופשה</button>
+        <div class="modal-header" id="modalHeader"></div>
+        <div class="modal-tabs">
+            <button class="modal-tab active" data-type="general">אירוע</button>
+            <button class="modal-tab" data-type="vacation">חופש</button>
         </div>
         <div class="date-range" id="dateRange" style="display:none; margin-bottom:12px;">
             <label style="font-size:13px; color:#555; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -394,10 +476,20 @@
             </label>
         </div>
         <textarea id="modalText" placeholder="כתבי כאן..."></textarea>
+        <div class="holiday-section" id="holidaySection">
+            <div class="holiday-divider"></div>
+            <div class="holiday-row">
+                <span class="holiday-name" id="holidayName"></span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="holidayToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
         <div class="modal-buttons">
+            <button class="btn btn-delete" id="btnDelete">מחק</button>
             <button class="btn btn-save" id="btnSave">שמור</button>
             <button class="btn btn-cancel" id="btnCancel">ביטול</button>
-            <button class="btn btn-delete" id="btnDelete">מחק</button>
         </div>
     </div>
 </div>
@@ -607,10 +699,11 @@
         currentEditDay = day;
 
         var dow = new Date(currentYear, month, day).getDay();
+        var dd = String(day).padStart(2, "0");
+        var mm = String(month + 1).padStart(2, "0");
 
-        document.getElementById("modalDate").textContent =
-            day + " " + MONTHS_HE_FULL[month] + " " + currentYear;
-        document.getElementById("modalWeekday").textContent = WEEKDAYS_FULL[dow];
+        document.getElementById("modalHeader").textContent =
+            dd + "." + mm + " | " + WEEKDAYS_FULL[dow];
 
         var entry = calendarData[key];
         var text = "";
@@ -620,25 +713,36 @@
             text = entry.text || "";
             currentType = entry.type || "general";
         }
+        if (currentType === "holiday") currentType = "general";
 
         document.getElementById("modalText").value = text;
 
-        var dateStr = currentYear + "-" + String(month+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+        var dateStr = currentYear + "-" + mm + "-" + dd;
         document.getElementById("vacStart").value = dateStr;
         document.getElementById("vacEnd").value = dateStr;
 
-        updateChipsUI();
+        var holidayEntry = calendarData[key];
+        var holidaySection = document.getElementById("holidaySection");
+        if (holidayEntry && holidayEntry.type === "holiday") {
+            holidaySection.classList.add("visible");
+            document.getElementById("holidayName").textContent = holidayEntry.text;
+            document.getElementById("holidayToggle").checked = true;
+        } else {
+            holidaySection.classList.remove("visible");
+        }
+
+        updateTabsUI();
 
         document.getElementById("btnDelete").style.display = text ? "block" : "none";
         document.getElementById("modalOverlay").classList.add("active");
         setTimeout(function() { document.getElementById("modalText").focus(); }, 100);
     }
 
-    function updateChipsUI() {
-        document.querySelectorAll(".type-chip").forEach(function(chip) {
-            chip.className = "type-chip";
-            if (chip.dataset.type === currentType) {
-                chip.classList.add("active-" + currentType);
+    function updateTabsUI() {
+        document.querySelectorAll(".modal-tab").forEach(function(tab) {
+            tab.classList.remove("active");
+            if (tab.dataset.type === currentType) {
+                tab.classList.add("active");
             }
         });
         document.getElementById("dateRange").style.display = currentType === "vacation" ? "block" : "none";
@@ -651,6 +755,15 @@
 
     async function saveEntry() {
         var text = document.getElementById("modalText").value.trim();
+
+        var holidaySection = document.getElementById("holidaySection");
+        if (holidaySection.classList.contains("visible")) {
+            var toggle = document.getElementById("holidayToggle");
+            if (!toggle.checked) {
+                delete calendarData[currentEditKey];
+                await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
+            }
+        }
 
         if (currentType === "vacation" && text) {
             var startDate = new Date(document.getElementById("vacStart").value);
@@ -672,7 +785,7 @@
         } else if (text) {
             calendarData[currentEditKey] = { text: text, type: currentType };
             await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, currentType);
-        } else {
+        } else if (!holidaySection.classList.contains("visible")) {
             delete calendarData[currentEditKey];
             await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
         }
@@ -709,10 +822,10 @@
     document.getElementById("btnCancel").addEventListener("click", closeEditor);
     document.getElementById("btnDelete").addEventListener("click", deleteEntry);
 
-    document.querySelectorAll(".type-chip").forEach(function(chip) {
-        chip.addEventListener("click", function() {
-            currentType = chip.dataset.type;
-            updateChipsUI();
+    document.querySelectorAll(".modal-tab").forEach(function(tab) {
+        tab.addEventListener("click", function() {
+            currentType = tab.dataset.type;
+            updateTabsUI();
         });
     });
 
