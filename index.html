@@ -1086,16 +1086,6 @@
     async function saveEntry() {
         var text = document.getElementById("modalText").value.trim();
 
-        var holidaySection = document.getElementById("holidaySection");
-        if (holidaySection.classList.contains("visible")) {
-            var toggle = document.getElementById("holidayToggle");
-            if (!toggle.checked) {
-                if (!calendarData[currentEditKey]) calendarData[currentEditKey] = {};
-                delete calendarData[currentEditKey].holiday;
-                await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "holiday");
-            }
-        }
-
         if (currentType === "vacation" && text) {
             var startDate = dpStartDate || new Date(currentYear, currentEditMonth, currentEditDay);
             var endDate = dpEndDate || startDate;
