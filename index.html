@@ -742,7 +742,9 @@
 
         if (data) {
             data.forEach(function(row) {
-                result[dataKey(row.month, row.day)] = { text: row.content, type: row.type || "general" };
+                var key = dataKey(row.month, row.day);
+                if (!result[key]) result[key] = {};
+                result[key][row.type || "general"] = row.content;
             });
         }
         return result;
@@ -756,15 +758,17 @@
             content: content,
             type: type,
             updated_at: new Date().toISOString()
-        }, { onConflict: "year,month,day" });
+        }, { onConflict: "year,month,day,type" });
     }
 
-    async function deleteEntryFromDB(year, month, day) {
-        await sb.from("calendar_entries")
+    async function deleteEntryFromDB(year, month, day, type) {
+        var q = sb.from("calendar_entries")
             .delete()
             .eq("year", year)
             .eq("month", month)
             .eq("day", day);
+        if (type) q = q.eq("type", type);
+        await q;
     }
 
     async function loadNotesFromDB(year) {
@@ -847,13 +851,19 @@
                     dateRow.className = "date-row";
 
                     var key = dataKey(m, dayNum);
-                    var entry = calendarData[key];
+                    var entries = calendarData[key];
 
-                    if (entry && entry.text) {
-                        var entryType = entry.type || "general";
-                        if (entryType === "vacation") cell.classList.add("vacation-cell");
+                    var mainType = null;
+                    if (entries) {
+                        if (entries.vacation) mainType = "vacation";
+                        else if (entries.holiday) mainType = "holiday";
+                        else if (entries.general) mainType = "general";
+                    }
+
+                    if (mainType) {
+                        if (mainType === "vacation") cell.classList.add("vacation-cell");
                         var dot = document.createElement("div");
-                        dot.className = "type-dot type-" + entryType;
+                        dot.className = "type-dot type-" + mainType;
                         dateRow.appendChild(dot);
                     }
 
@@ -862,14 +872,30 @@
                     dateRow.appendChild(numSpan);
                     cell.appendChild(dateRow);
 
-                    if (entry && entry.text) {
-                        var entryType2 = entry.type || "general";
-                        var preview = document.createElement("div");
-                        preview.className = "content-preview";
-                        if (entryType2 === "holiday") preview.classList.add("holiday-preview");
-                        preview.textContent = entry.text;
-                        cell.appendChild(preview);
-                        cell.dataset.tip = entry.text;
+                    if (entries) {
+                        var tipParts = [];
+                        if (entries.holiday) {
+                            var hp = document.createElement("div");
+                            hp.className = "content-preview holiday-preview";
+                            hp.textContent = entries.holiday;
+                            cell.appendChild(hp);
+                            tipParts.push(entries.holiday);
+                        }
+                        if (entries.general) {
+                            var gp = document.createElement("div");
+                            gp.className = "content-preview";
+                            gp.textContent = entries.general;
+                            cell.appendChild(gp);
+                            tipParts.push(entries.general);
+                        }
+                        if (entries.vacation) {
+                            var vp = document.createElement("div");
+                            vp.className = "content-preview";
+                            vp.textContent = entries.vacation;
+                            cell.appendChild(vp);
+                            tipParts.push(entries.vacation);
+                        }
+                        if (tipParts.length > 0) cell.dataset.tip = tipParts.join(" | ");
                     }
 
                     if (isToday(currentYear, m, dayNum)) {
@@ -918,8 +944,8 @@
         var startDay = null, endDay = null;
         for (var d = 1; d <= getDaysInMonth(currentYear, month); d++) {
             var k = dataKey(month, d);
-            var e = calendarData[k];
-            if (e && e.type === "holiday" && e.text === holidayText) {
+            var entries = calendarData[k];
+            if (entries && entries.holiday === holidayText) {
                 if (startDay === null) startDay = d;
                 endDay = d;
             }
@@ -943,17 +969,9 @@
         document.getElementById("modalTitle").textContent =
             dd + "." + mm + "  " + WEEKDAYS_FULL[dow];
 
-        var entry = calendarData[key];
-        var text = "";
-        currentType = "general";
-
-        if (entry) {
-            currentType = entry.type || "general";
-            if (currentType !== "holiday") {
-                text = entry.text || "";
-            }
-        }
-        if (currentType === "holiday") currentType = "general";
+        var entries = calendarData[key] || {};
+        var text = entries.general || entries.vacation || "";
+        currentType = entries.vacation ? "vacation" : "general";
 
         document.getElementById("modalText").value = text;
 
@@ -963,12 +981,11 @@
         dpViewMonth = month;
         dpViewYear = currentYear;
 
-        var holidayEntry = calendarData[key];
         var holidaySection = document.getElementById("holidaySection");
-        if (holidayEntry && holidayEntry.type === "holiday") {
+        if (entries.holiday) {
             holidaySection.classList.add("visible");
-            document.getElementById("holidayName").textContent = holidayEntry.text;
-            document.getElementById("holidayDates").textContent = findHolidayDateRange(holidayEntry.text, month);
+            document.getElementById("holidayName").textContent = entries.holiday;
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries.holiday, month);
             document.getElementById("holidayToggle").checked = true;
         } else {
             holidaySection.classList.remove("visible");
@@ -1073,8 +1090,9 @@
         if (holidaySection.classList.contains("visible")) {
             var toggle = document.getElementById("holidayToggle");
             if (!toggle.checked) {
-                delete calendarData[currentEditKey];
-                await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
+                if (!calendarData[currentEditKey]) calendarData[currentEditKey] = {};
+                delete calendarData[currentEditKey].holiday;
+                await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "holiday");
             }
         }
 
@@ -1088,25 +1106,35 @@
                 var m = d.getMonth();
                 var dd = d.getDate();
                 var key = dataKey(m, dd);
-                calendarData[key] = { text: text, type: "vacation" };
+                if (!calendarData[key]) calendarData[key] = {};
+                calendarData[key].vacation = text;
                 promises.push(saveEntryToDB(d.getFullYear(), m, dd, text, "vacation"));
                 d.setDate(d.getDate() + 1);
             }
             await Promise.all(promises);
         } else if (text) {
-            calendarData[currentEditKey] = { text: text, type: currentType };
-            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, currentType);
-        } else if (!holidaySection.classList.contains("visible")) {
-            delete calendarData[currentEditKey];
-            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
+            if (!calendarData[currentEditKey]) calendarData[currentEditKey] = {};
+            calendarData[currentEditKey].general = text;
+            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, "general");
+        } else {
+            if (calendarData[currentEditKey]) {
+                delete calendarData[currentEditKey].general;
+                delete calendarData[currentEditKey].vacation;
+            }
+            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "general");
+            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "vacation");
         }
         closeEditor();
         renderCalendar();
     }
 
     async function deleteEntry() {
-        delete calendarData[currentEditKey];
-        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay);
+        if (calendarData[currentEditKey]) {
+            delete calendarData[currentEditKey].general;
+            delete calendarData[currentEditKey].vacation;
+        }
+        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "general");
+        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "vacation");
         closeEditor();
         renderCalendar();
     }
