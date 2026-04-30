@@ -192,10 +192,16 @@
             text-overflow: clip;
             max-width: 100%;
             padding: 0 1px;
-            margin-top: 1px;
+            margin-top: 0;
             letter-spacing: -0.02em;
             line-height: 13px;
             direction: rtl;
+            flex-shrink: 0;
+        }
+
+        .content-preview.holiday-preview {
+            color: #e74c3c;
+            font-weight: 500;
         }
 
         .cell-tooltip {
@@ -922,20 +928,30 @@
     }
 
     function trimPreviews() {
-        var canvas = document.createElement("canvas");
-        var ctx = canvas.getContext("2d");
+        var measurer = document.createElement("span");
+        measurer.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-size:12px;font-family:'Heebo',sans-serif;letter-spacing:-0.02em;padding:0 1px;";
+        document.body.appendChild(measurer);
+
         document.querySelectorAll(".content-preview").forEach(function(el) {
             var original = el.dataset.full || el.textContent;
             el.dataset.full = original;
-            var style = getComputedStyle(el);
-            ctx.font = style.fontSize + " " + style.fontFamily;
-            var maxW = el.clientWidth - 2;
+            var maxW = el.clientWidth;
+            if (maxW <= 0) return;
+            measurer.textContent = original;
+            if (measurer.offsetWidth <= maxW) {
+                el.textContent = original;
+                return;
+            }
             var text = original;
-            while (text.length > 0 && ctx.measureText(text).width > maxW) {
+            while (text.length > 0) {
                 text = text.slice(0, -1);
+                measurer.textContent = text;
+                if (measurer.offsetWidth <= maxW) break;
             }
             el.textContent = text;
         });
+
+        document.body.removeChild(measurer);
     }
 
     var dpStartDate = null;
