@@ -206,16 +206,55 @@
 
         .cell-tooltip {
             position: fixed;
-            background: #222;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            background: white;
+            height: 140px;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 9999;
             pointer-events: none;
-            white-space: nowrap;
             direction: rtl;
             display: none;
+            padding: 6px 8px;
+            overflow: hidden;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            font-family: 'Heebo', sans-serif;
+        }
+
+        .cell-tooltip.active { display: flex; }
+
+        .cell-tooltip .tt-date {
+            font-size: 11px;
+            font-weight: 400;
+            color: #3B383D;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .cell-tooltip .tt-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .cell-tooltip .tt-holiday {
+            font-size: 13px;
+            color: #66606A;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .cell-tooltip .tt-content {
+            font-size: 13px;
+            color: #000;
+            line-height: 1.3;
+            word-break: normal;
+            overflow-wrap: break-word;
+            white-space: normal;
         }
 
         .modal-overlay {
@@ -884,6 +923,7 @@
                     cell.appendChild(dateRow);
 
                     if (entries) {
+                        cell.dataset.key = key;
                         var tipParts = [];
                         if (entries.holiday) {
                             var hp = document.createElement("div");
@@ -1230,18 +1270,42 @@
     var tooltip = document.getElementById("cellTooltip");
     document.getElementById("calendar").addEventListener("mouseover", function(e) {
         var cell = e.target.closest(".day-cell");
-        if (cell && cell.dataset.tip) {
-            tooltip.textContent = cell.dataset.tip;
-            tooltip.style.display = "block";
-            var rect = cell.getBoundingClientRect();
-            tooltip.style.top = (rect.top - 28) + "px";
-            tooltip.style.left = (rect.left + rect.width / 2) + "px";
-            tooltip.style.transform = "translateX(-50%)";
+        if (!cell || !cell.dataset.tip) { tooltip.classList.remove("active"); return; }
+
+        var rect = cell.getBoundingClientRect();
+        var ratio = rect.width / rect.height;
+        var ttH = 140;
+        var ttW = Math.round(ttH * ratio);
+        tooltip.style.width = ttW + "px";
+        tooltip.style.height = ttH + "px";
+
+        var html = '';
+        var dateText = cell.querySelector(".date-row span") ? cell.querySelector(".date-row span").textContent : "";
+        var dotEl = cell.querySelector(".type-dot");
+        var dotColor = dotEl ? getComputedStyle(dotEl).backgroundColor : "";
+
+        html += '<div class="tt-date">' + dateText;
+        if (dotColor) html += '<div class="tt-dot" style="background:' + dotColor + '"></div>';
+        html += '</div>';
+
+        var entries = calendarData[cell.dataset.key];
+        if (!entries) {
+            var parts = cell.dataset.tip.split(" | ");
+            parts.forEach(function(p) { html += '<div class="tt-content">' + p + '</div>'; });
+        } else {
+            if (entries.holiday) html += '<div class="tt-holiday">' + entries.holiday + '</div>';
+            if (entries.general) html += '<div class="tt-content">' + entries.general + '</div>';
+            if (entries.vacation) html += '<div class="tt-content">' + entries.vacation + '</div>';
         }
+
+        tooltip.innerHTML = html;
+        tooltip.classList.add("active");
+        tooltip.style.top = (rect.top - ttH - 6) + "px";
+        tooltip.style.left = (rect.left + rect.width / 2 - ttW / 2) + "px";
     });
     document.getElementById("calendar").addEventListener("mouseout", function(e) {
         var cell = e.target.closest(".day-cell");
-        if (cell) tooltip.style.display = "none";
+        if (cell) tooltip.classList.remove("active");
     });
 
     buildYearSelector();
