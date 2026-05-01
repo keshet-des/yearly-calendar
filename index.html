@@ -165,7 +165,7 @@
 
         .type-dot.type-general { background: #FFDD28; }
         .type-dot.type-holiday { background: #FF8400; }
-        .type-dot.type-vacation { background: #FFDD28; }
+        .type-dot.type-vacation { background: #35E494; }
 
         .day-cell.vacation-cell { background: #F7F5F9 !important; }
         .day-cell.holiday-cell { background: white !important; }
@@ -918,24 +918,29 @@
                     var key = dataKey(m, dayNum);
                     var entries = calendarData[key];
 
-                    var mainType = null;
-                    if (entries) {
-                        if (entries.vacation) mainType = "vacation";
-                        else if (entries.holiday) mainType = "holiday";
-                        else if (entries._holidayHidden) mainType = "holiday";
-                        else if (entries.general) mainType = "general";
-                    }
-
                     var numSpan = document.createElement("span");
                     numSpan.textContent = dayNum;
                     dateRow.appendChild(numSpan);
 
-                    if (mainType) {
-                        if (mainType === "vacation") cell.classList.add("vacation-cell");
-                        if (mainType === "holiday" && weekday !== 5 && weekday !== 6) cell.classList.add("holiday-cell");
-                        var dot = document.createElement("div");
-                        dot.className = "type-dot type-" + mainType;
-                        dateRow.appendChild(dot);
+                    if (entries) {
+                        if (entries.vacation) cell.classList.add("vacation-cell");
+                        if ((entries.holiday || entries._holidayHidden) && weekday !== 5 && weekday !== 6) cell.classList.add("holiday-cell");
+
+                        if (entries.holiday || entries._holidayHidden) {
+                            var dotH = document.createElement("div");
+                            dotH.className = "type-dot type-holiday";
+                            dateRow.appendChild(dotH);
+                        }
+                        if (entries.general) {
+                            var dotG = document.createElement("div");
+                            dotG.className = "type-dot type-general";
+                            dateRow.appendChild(dotG);
+                        }
+                        if (entries.vacation) {
+                            var dotV = document.createElement("div");
+                            dotV.className = "type-dot type-vacation";
+                            dateRow.appendChild(dotV);
+                        }
                     }
 
                     cell.appendChild(dateRow);
