@@ -164,6 +164,8 @@
         }
 
         .type-dot.type-general { background: #FFDD28; }
+        .type-dot.type-professional { background: #FFDD28; }
+        .type-dot.type-personal { background: #8B59FF; }
         .type-dot.type-holiday { background: #FF8400; }
         .type-dot.type-vacation { background: #35E494; }
 
@@ -267,83 +269,176 @@
             white-space: normal;
         }
 
-        .modal-overlay {
+        .drawer-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.2);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(2px);
         }
 
-        .modal-overlay.active { display: flex; }
+        .drawer-overlay.active { display: block; }
 
-        .modal {
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 360px;
+            max-width: 90vw;
+            height: 100vh;
             background: #FAF8FC;
-            border-radius: 20px;
-            padding: 24px 28px;
-            width: 500px;
-            min-height: 390px;
-            max-width: 95vw;
-            box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
-            animation: modalIn 0.2s ease-out;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            position: relative;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-            to   { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .modal-top-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            left: 0;
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: #333;
-            padding: 4px;
-            line-height: 1;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a1a;
-            width: 100%;
-            text-align: center;
-        }
-
-        .entries-list {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
             direction: rtl;
         }
 
-        .entry-card {
-            padding: 12px 0;
+        .drawer.open { transform: translateX(0); }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 20px 14px;
             border-bottom: 1px solid #e8e5eb;
+        }
+
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            flex: 1;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 4px 8px;
+            line-height: 1;
+            border-radius: 6px;
+        }
+
+        .drawer-close:hover { background: #EFEBF2; }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
+        }
+
+        .drawer-add-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e8e5eb;
+        }
+
+        .drawer-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .drawer-tags {
+            display: inline-flex;
+            padding: 3px;
+            border-radius: 8px;
+            background: #EFEBF2;
+            gap: 0;
+        }
+
+        .drawer-tag {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 500;
+            color: #666;
+            background: transparent;
+            transition: all 0.12s;
+        }
+
+        .drawer-tag.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .drawer-add-textarea {
+            width: 100%;
+            min-height: 70px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            direction: rtl;
+            line-height: 1.5;
+            background: #f5f3f7;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .drawer-add-textarea:focus {
+            outline: none;
+            background: #f0edf3;
+        }
+
+        .drawer-add-textarea::placeholder { color: #aaa; }
+
+        .drawer-add-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #8B59FF;
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.12s;
+        }
+
+        .drawer-add-btn:hover { opacity: 0.9; }
+
+        .entries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .entries-list-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .entry-card {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0edf3;
+            display: flex;
+            align-items: flex-start;
             gap: 8px;
         }
 
         .entry-card:last-child { border-bottom: none; }
+
+        .entry-card-body {
+            flex: 1;
+            min-width: 0;
+        }
 
         .entry-card-header {
             display: flex;
@@ -372,6 +467,10 @@
         .entry-type-tag.tag-holiday .tag-dot { background: #FF8400; }
         .entry-type-tag.tag-general { background: #FFF8D6; color: #8A7600; }
         .entry-type-tag.tag-general .tag-dot { background: #FFDD28; }
+        .entry-type-tag.tag-professional { background: #FFF8D6; color: #8A7600; }
+        .entry-type-tag.tag-professional .tag-dot { background: #FFDD28; }
+        .entry-type-tag.tag-personal { background: #E8E3F3; color: #5A3D8A; }
+        .entry-type-tag.tag-personal .tag-dot { background: #8B59FF; }
         .entry-type-tag.tag-vacation { background: #DFFBEF; color: #1A7A4A; }
         .entry-type-tag.tag-vacation .tag-dot { background: #35E494; }
 
@@ -385,9 +484,8 @@
         .entry-actions {
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-right: auto;
-            margin-left: 0;
+            gap: 2px;
+            flex-shrink: 0;
         }
 
         .entry-action-btn {
@@ -461,116 +559,6 @@
             transform: translateX(-16px);
         }
 
-        .add-entry-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            width: 100%;
-            padding: 10px;
-            background: none;
-            border: 1.5px dashed #C5BDCA;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 500;
-            color: #8B59FF;
-            margin-top: 8px;
-            transition: all 0.15s;
-        }
-
-        .add-entry-btn:hover {
-            background: rgba(139,89,255,0.04);
-            border-color: #8B59FF;
-        }
-
-        .new-entry-form {
-            display: none;
-            padding: 12px 0;
-            border-bottom: 1px solid #e8e5eb;
-            direction: rtl;
-        }
-
-        .new-entry-form.visible { display: block; }
-
-        .new-entry-form .type-selector {
-            display: inline-flex;
-            padding: 3px;
-            border-radius: 8px;
-            background: #EFEBF2;
-            margin-bottom: 8px;
-            gap: 0;
-        }
-
-        .new-entry-form .type-option {
-            padding: 4px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: inherit;
-            font-weight: 500;
-            color: #666;
-            background: transparent;
-            transition: all 0.12s;
-        }
-
-        .new-entry-form .type-option.active {
-            background: #1a1a1a;
-            color: white;
-        }
-
-        .new-entry-form textarea {
-            width: 100%;
-            min-height: 60px;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: none;
-            direction: rtl;
-            line-height: 1.5;
-            background: #f5f3f7;
-            color: #333;
-        }
-
-        .new-entry-form textarea:focus {
-            outline: none;
-            background: #f0edf3;
-        }
-
-        .new-entry-form textarea::placeholder { color: #aaa; }
-
-        .new-entry-form .form-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            direction: ltr;
-        }
-
-        .new-entry-form .form-btn {
-            padding: 6px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            transition: opacity 0.12s;
-        }
-
-        .new-entry-form .form-btn-save {
-            background: #8B59FF;
-            color: white;
-        }
-
-        .new-entry-form .form-btn-cancel {
-            background: #EFEBF2;
-            color: #666;
-        }
-
         .cal-icon-btn {
             background: none;
             border: 1.5px solid #ddd;
@@ -592,7 +580,8 @@
         .edit-entry-form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
+            width: 100%;
         }
 
         .edit-entry-form .type-selector {
@@ -604,16 +593,15 @@
         }
 
         .edit-entry-form .type-option {
-            padding: 4px 14px;
+            padding: 4px 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             font-family: inherit;
             font-weight: 500;
             color: #666;
             background: transparent;
-            transition: all 0.12s;
         }
 
         .edit-entry-form .type-option.active {
@@ -623,15 +611,15 @@
 
         .edit-entry-form textarea {
             width: 100%;
-            min-height: 60px;
+            min-height: 50px;
             border: none;
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 14px;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
             font-family: inherit;
             resize: none;
             direction: rtl;
-            line-height: 1.5;
+            line-height: 1.4;
             background: #f5f3f7;
             color: #333;
         }
@@ -643,17 +631,16 @@
 
         .edit-entry-form .form-actions {
             display: flex;
-            gap: 8px;
-            direction: ltr;
+            gap: 6px;
         }
 
         .edit-entry-form .form-btn {
-            padding: 6px 16px;
-            border-radius: 8px;
+            padding: 5px 14px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
 
@@ -667,45 +654,48 @@
             color: #666;
         }
 
-        .modal-buttons {
+        .drawer-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e8e5eb;
+        }
+
+        .holiday-footer-row {
             display: flex;
-            gap: 16px;
-            margin-top: 18px;
-            justify-content: center;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .btn {
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-family: inherit;
+        .holiday-footer-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
             font-weight: 600;
-            transition: opacity 0.15s, transform 0.1s;
+            color: #1a1a1a;
         }
 
-        .btn:active { transform: scale(0.97); }
-
-        .btn-cancel {
-            height: 40px;
-            padding: 0 32px;
-            background: transparent;
+        .holiday-footer-dates {
+            font-size: 12px;
+            font-weight: 400;
             color: #666;
-            font-size: 14px;
-            border: 1.5px solid #ddd;
         }
-        .btn-cancel:hover { background: rgba(0,0,0,0.03); }
+
+        .holiday-footer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
         .date-picker-overlay {
             display: none;
-            position: absolute;
-            top: 60px;
-            left: 24px;
+            position: relative;
             z-index: 10;
             background: white;
             border-radius: 12px;
             box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
-            padding: 20px 16px 16px;
+            padding: 16px 12px 12px;
             direction: rtl;
+            margin-bottom: 10px;
         }
 
         .date-picker-overlay.active { display: block; }
@@ -877,28 +867,48 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <div class="modal-top-row">
-            <button class="modal-close" id="btnClose">&times;</button>
-            <span class="modal-title" id="modalTitle"></span>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">
+        <span class="drawer-title" id="drawerTitle"></span>
+        <button class="drawer-close" id="drawerClose">&times;</button>
+    </div>
+    <div class="drawer-body">
+        <div class="drawer-add-section">
+            <div class="drawer-toolbar">
+                <div class="drawer-tags" id="drawerTags">
+                    <button class="drawer-tag active" data-type="professional">מקצועי</button>
+                    <button class="drawer-tag" data-type="personal">אישי</button>
+                    <button class="drawer-tag" data-type="vacation">חופש</button>
+                </div>
+                <button class="cal-icon-btn" id="calIconBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="date-picker-overlay" id="datePicker"></div>
+            <textarea class="drawer-add-textarea" id="newEntryText" placeholder="תאור ופרטים..."></textarea>
+            <button class="drawer-add-btn" id="newEntrySave">הוספה</button>
         </div>
-        <div class="date-picker-overlay" id="datePicker"></div>
         <div class="entries-list" id="entriesList"></div>
-        <div class="new-entry-form" id="newEntryForm">
-            <div class="type-selector" id="newTypeSelector">
-                <button class="type-option active" data-type="general">אירוע</button>
-                <button class="type-option" data-type="vacation">חופש</button>
+    </div>
+    <div class="drawer-footer" id="drawerFooter" style="display:none;">
+        <div class="holiday-footer-row">
+            <div class="holiday-footer-info">
+                <span id="holidayName"></span>
+                <span class="holiday-footer-dates" id="holidayDates"></span>
             </div>
-            <textarea id="newEntryText" placeholder="תאור ופרטים..."></textarea>
-            <div class="form-actions">
-                <button class="form-btn form-btn-save" id="newEntrySave">הוסף</button>
-                <button class="form-btn form-btn-cancel" id="newEntryCancel">ביטול</button>
+            <div class="holiday-footer-toggle">
+                <span class="holiday-toggle-label">הצגה בלוח</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="holidayToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
-        </div>
-        <button class="add-entry-btn" id="addEntryBtn">+ הוסף תוכן</button>
-        <div class="modal-buttons">
-            <button class="btn btn-cancel" id="btnCancel">סגור</button>
         </div>
     </div>
 </div>
@@ -1186,8 +1196,8 @@
         return sd + " - " + ed;
     }
 
-    var TYPE_LABELS = { holiday: "חג", general: "אירוע", vacation: "חופש" };
-    var TYPE_COLORS = { holiday: "#FF8400", general: "#FFDD28", vacation: "#35E494" };
+    var TYPE_LABELS = { holiday: "חג", professional: "מקצועי", personal: "אישי", general: "אחר", vacation: "חופש" };
+    var TYPE_COLORS = { holiday: "#FF8400", professional: "#FFDD28", personal: "#8B59FF", general: "#FFDD28", vacation: "#35E494" };
 
     function openEditor(month, day) {
         var key = dataKey(month, day);
@@ -1199,7 +1209,7 @@
         var dd = String(day).padStart(2, "0");
         var mm = String(month + 1).padStart(2, "0");
 
-        document.getElementById("modalTitle").textContent =
+        document.getElementById("drawerTitle").textContent =
             dd + "." + mm + "  " + WEEKDAYS_FULL[dow];
 
         dpStartDate = new Date(currentYear, month, day);
@@ -1208,52 +1218,48 @@
         dpViewMonth = month;
         dpViewYear = currentYear;
 
-        document.getElementById("newEntryForm").classList.remove("visible");
-        document.getElementById("addEntryBtn").style.display = "";
+        document.getElementById("newEntryText").value = "";
         document.getElementById("datePicker").classList.remove("active");
 
+        var entries = calendarData[key] || [];
+        var holiday = entries.find(function(e) { return e.type === "holiday"; });
+        var footer = document.getElementById("drawerFooter");
+        if (holiday) {
+            footer.style.display = "";
+            document.getElementById("holidayName").textContent = holiday.content;
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(holiday.content);
+            document.getElementById("holidayToggle").checked = !holiday.hidden;
+        } else {
+            footer.style.display = "none";
+        }
+
         renderEntriesList();
-        document.getElementById("modalOverlay").classList.add("active");
+        document.getElementById("drawerOverlay").classList.add("active");
+        document.getElementById("drawer").classList.add("open");
     }
 
     function renderEntriesList() {
         var list = document.getElementById("entriesList");
-        var entries = calendarData[currentEditKey] || [];
+        var entries = (calendarData[currentEditKey] || []).filter(function(e) { return e.type !== "holiday"; });
         var html = "";
 
-        entries.forEach(function(entry) {
-            var tagClass = "tag-" + entry.type;
-            var isHoliday = entry.type === "holiday";
-
-            html += '<div class="entry-card" data-entry-id="' + entry.id + '">';
-            html += '<div class="entry-card-header">';
-            html += '<span class="entry-type-tag ' + tagClass + '"><span class="tag-dot"></span>' + TYPE_LABELS[entry.type] + '</span>';
-            if (isHoliday) {
-                html += '<span style="font-size:12px;color:#666;">' + findHolidayDateRange(entry.content) + '</span>';
-            }
-            if (!isHoliday) {
+        if (entries.length > 0) {
+            entries.forEach(function(entry) {
+                var tagClass = "tag-" + entry.type;
+                html += '<div class="entry-card" data-entry-id="' + entry.id + '">';
+                html += '<div class="entry-card-body">';
+                html += '<div class="entry-card-header">';
+                html += '<span class="entry-type-tag ' + tagClass + '"><span class="tag-dot"></span>' + TYPE_LABELS[entry.type] + '</span>';
+                html += '</div>';
+                html += '<div class="entry-content">' + entry.content + '</div>';
+                html += '</div>';
                 html += '<div class="entry-actions">';
                 html += '<button class="entry-action-btn edit-entry-btn" data-id="' + entry.id + '" title="ערוך"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
                 html += '<button class="entry-action-btn delete-entry-btn" data-id="' + entry.id + '" title="מחק"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>';
+                html += '<button class="entry-action-btn type-change-btn" data-id="' + entry.id + '" title="שנה סוג"><span class="entry-type-tag ' + tagClass + '" style="padding:2px 6px;font-size:10px;cursor:pointer;"><span class="tag-dot"></span></span></button>';
                 html += '</div>';
-            }
-            html += '</div>';
-
-            if (isHoliday) {
-                html += '<div class="entry-content">' + entry.content + '</div>';
-                html += '<div class="holiday-toggle-row">';
-                html += '<label class="toggle-switch"><input type="checkbox" class="holiday-toggle-cb" data-id="' + entry.id + '"' + (entry.hidden ? '' : ' checked') + '><span class="toggle-slider"></span></label>';
-                html += '<span class="holiday-toggle-label">הצגה בלוח</span>';
                 html += '</div>';
-            } else {
-                html += '<div class="entry-content">' + entry.content + '</div>';
-            }
-
-            html += '</div>';
-        });
-
-        if (entries.length === 0) {
-            html = '<div style="text-align:center;padding:30px 0;color:#aaa;font-size:14px;">אין תוכן עדיין</div>';
+            });
         }
 
         list.innerHTML = html;
@@ -1266,10 +1272,8 @@
             btn.addEventListener("click", function() { deleteEntryById(parseInt(btn.dataset.id)); });
         });
 
-        list.querySelectorAll(".holiday-toggle-cb").forEach(function(cb) {
-            cb.addEventListener("change", function() {
-                toggleHoliday(parseInt(cb.dataset.id), !cb.checked);
-            });
+        list.querySelectorAll(".type-change-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() { startEditEntry(parseInt(btn.dataset.id)); });
         });
     }
 
@@ -1284,8 +1288,10 @@
         var editType = entry.type;
         var editHtml = '<div class="edit-entry-form">';
         editHtml += '<div class="type-selector">';
-        editHtml += '<button class="type-option' + (editType === "general" ? " active" : "") + '" data-type="general">אירוע</button>';
+        editHtml += '<button class="type-option' + (editType === "professional" ? " active" : "") + '" data-type="professional">מקצועי</button>';
+        editHtml += '<button class="type-option' + (editType === "personal" ? " active" : "") + '" data-type="personal">אישי</button>';
         editHtml += '<button class="type-option' + (editType === "vacation" ? " active" : "") + '" data-type="vacation">חופש</button>';
+        editHtml += '<button class="type-option' + (editType === "general" ? " active" : "") + '" data-type="general">אחר</button>';
         editHtml += '</div>';
         editHtml += '<textarea>' + entry.content + '</textarea>';
         editHtml += '<div class="form-actions">';
@@ -1338,23 +1344,13 @@
         renderCalendar();
     }
 
-    var newEntryType = "general";
-    document.getElementById("addEntryBtn").addEventListener("click", function() {
-        document.getElementById("newEntryForm").classList.add("visible");
-        document.getElementById("addEntryBtn").style.display = "none";
-        document.getElementById("newEntryText").value = "";
-        newEntryType = "general";
-        document.querySelectorAll("#newTypeSelector .type-option").forEach(function(o) {
-            o.classList.toggle("active", o.dataset.type === "general");
-        });
-        setTimeout(function() { document.getElementById("newEntryText").focus(); }, 50);
-    });
+    var newEntryType = "professional";
 
-    document.querySelectorAll("#newTypeSelector .type-option").forEach(function(opt) {
-        opt.addEventListener("click", function() {
-            document.querySelectorAll("#newTypeSelector .type-option").forEach(function(o) { o.classList.remove("active"); });
-            opt.classList.add("active");
-            newEntryType = opt.dataset.type;
+    document.querySelectorAll("#drawerTags .drawer-tag").forEach(function(tag) {
+        tag.addEventListener("click", function() {
+            document.querySelectorAll("#drawerTags .drawer-tag").forEach(function(t) { t.classList.remove("active"); });
+            tag.classList.add("active");
+            newEntryType = tag.dataset.type;
         });
     });
 
@@ -1381,17 +1377,11 @@
             calendarData[currentEditKey].push({ id: newId, type: newEntryType, content: text, hidden: false });
         }
 
-        document.getElementById("newEntryForm").classList.remove("visible");
-        document.getElementById("addEntryBtn").style.display = "";
+        document.getElementById("newEntryText").value = "";
         dpStartDate = dpDefaultDate;
         dpEndDate = dpDefaultDate;
         renderEntriesList();
         renderCalendar();
-    });
-
-    document.getElementById("newEntryCancel").addEventListener("click", function() {
-        document.getElementById("newEntryForm").classList.remove("visible");
-        document.getElementById("addEntryBtn").style.display = "";
     });
 
     function renderDatePicker() {
@@ -1465,7 +1455,8 @@
     }
 
     function closeEditor() {
-        document.getElementById("modalOverlay").classList.remove("active");
+        document.getElementById("drawer").classList.remove("open");
+        document.getElementById("drawerOverlay").classList.remove("active");
         currentEditKey = null;
     }
 
@@ -1487,15 +1478,29 @@
         });
     }
 
-    document.getElementById("btnCancel").addEventListener("click", closeEditor);
-    document.getElementById("btnClose").addEventListener("click", closeEditor);
+    document.getElementById("drawerClose").addEventListener("click", closeEditor);
+    document.getElementById("drawerOverlay").addEventListener("click", closeEditor);
 
-    document.getElementById("modalOverlay").addEventListener("click", function(e) {
-        if (e.target === e.currentTarget) closeEditor();
+    document.getElementById("calIconBtn").addEventListener("click", function() {
+        var dp = document.getElementById("datePicker");
+        if (dp.classList.contains("active")) {
+            dp.classList.remove("active");
+        } else {
+            renderDatePicker();
+            dp.classList.add("active");
+        }
+    });
+
+    document.getElementById("holidayToggle").addEventListener("change", function() {
+        var entries = calendarData[currentEditKey] || [];
+        var holiday = entries.find(function(e) { return e.type === "holiday"; });
+        if (holiday) {
+            toggleHoliday(holiday.id, !document.getElementById("holidayToggle").checked);
+        }
     });
 
     document.addEventListener("keydown", function(e) {
-        if (!document.getElementById("modalOverlay").classList.contains("active")) return;
+        if (!document.getElementById("drawer").classList.contains("open")) return;
         if (e.key === "Escape") closeEditor();
     });
 
