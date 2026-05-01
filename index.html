@@ -11,7 +11,7 @@
 
         body {
             font-family: 'Heebo', sans-serif;
-            background: #000000;
+            background: #66606A;
             color: #333;
             height: 100vh;
             display: flex;
@@ -58,7 +58,7 @@
             font-weight: 500;
             padding: 2px 4px;
             border: none;
-            border-bottom: 1.5px solid white;
+            border-bottom: none;
             border-radius: 0;
             background: transparent;
             color: white;
@@ -83,7 +83,7 @@
             display: grid;
             grid-template-columns: 36px repeat(37, minmax(28px, 1fr));
             grid-template-rows: auto repeat(12, 1fr);
-            gap: 2px;
+            gap: 1px;
             background: transparent;
             border-radius: 6px;
             overflow: hidden;
@@ -959,7 +959,7 @@
         for (var d = 1; d <= getDaysInMonth(currentYear, month); d++) {
             var k = dataKey(month, d);
             var entries = calendarData[k];
-            if (entries && entries.holiday === holidayText) {
+            if (entries && (entries.holiday === holidayText || entries._holidayHidden === holidayText)) {
                 if (startDay === null) startDay = d;
                 endDay = d;
             }
@@ -1004,7 +1004,7 @@
         } else if (entries._holidayHidden) {
             holidaySection.classList.add("visible");
             document.getElementById("holidayName").textContent = entries._holidayHidden;
-            document.getElementById("holidayDates").textContent = "";
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries._holidayHidden, month);
             document.getElementById("holidayToggle").checked = false;
         } else {
             holidaySection.classList.remove("visible");
