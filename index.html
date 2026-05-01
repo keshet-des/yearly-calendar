@@ -326,127 +326,104 @@
             text-align: center;
         }
 
-        .modal-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            direction: ltr;
-        }
-
-        .modal-tabs {
-            display: inline-flex;
-            padding: 4px;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
-            background: #EFEBF2;
-        }
-
-        .modal-tab {
-            padding: 6px 18px;
-            background: transparent;
-            border: none;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: inherit;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.15s;
-        }
-
-        .modal-tab.active {
-            background: #1a1a1a;
-            color: white;
-            font-weight: 600;
-        }
-
-        .cal-icon-btn {
-            background: none;
-            border: 1.5px solid #ddd;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: border-color 0.15s;
-        }
-
-        .cal-icon-btn:hover { border-color: #999; }
-
-        .cal-icon-btn svg { width: 18px; height: 18px; }
-
-        .modal textarea {
-            width: 100%;
+        .entries-list {
             flex: 1;
-            min-height: 120px;
-            border: none;
-            border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 15px;
-            font-family: inherit;
-            resize: none;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
             direction: rtl;
-            line-height: 1.6;
-            background: #f5f3f7;
-            color: #333;
         }
 
-        .modal textarea:focus {
-            outline: none;
-            background: #f0edf3;
-        }
-
-        .modal textarea::placeholder { color: #aaa; }
-
-        .holiday-section {
-            display: none;
-            padding-top: 14px;
-            margin-top: 14px;
-            border-top: 1px solid #e8e5eb;
-        }
-
-        .holiday-section.visible { display: block; }
-
-        .holiday-row {
+        .entry-card {
+            padding: 12px 0;
+            border-bottom: 1px solid #e8e5eb;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .holiday-info {
+        .entry-card:last-child { border-bottom: none; }
+
+        .entry-card-header {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
+        }
+
+        .entry-type-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 600;
-            color: #1a1a1a;
+            flex-shrink: 0;
         }
 
-        .holiday-dates {
+        .entry-type-tag .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .entry-type-tag.tag-holiday { background: #FFF0DB; color: #B36200; }
+        .entry-type-tag.tag-holiday .tag-dot { background: #FF8400; }
+        .entry-type-tag.tag-general { background: #FFF8D6; color: #8A7600; }
+        .entry-type-tag.tag-general .tag-dot { background: #FFDD28; }
+        .entry-type-tag.tag-vacation { background: #DFFBEF; color: #1A7A4A; }
+        .entry-type-tag.tag-vacation .tag-dot { background: #35E494; }
+
+        .entry-content {
             font-size: 14px;
-            font-weight: 400;
-            color: #666;
+            color: #333;
+            line-height: 1.5;
+            direction: rtl;
         }
 
-        .holiday-toggle-wrap {
+        .entry-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: auto;
+            margin-left: 0;
+        }
+
+        .entry-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #999;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.12s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .entry-action-btn:hover { background: #EFEBF2; color: #333; }
+
+        .entry-action-btn svg { width: 15px; height: 15px; }
+
+        .holiday-toggle-row {
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-top: 2px;
         }
 
         .holiday-toggle-label {
-            font-size: 14px;
+            font-size: 12px;
             color: #666;
         }
 
         .toggle-switch {
             position: relative;
-            width: 44px;
-            height: 24px;
+            width: 36px;
+            height: 20px;
             cursor: pointer;
         }
 
@@ -460,19 +437,19 @@
             position: absolute;
             inset: 0;
             background: #C5BDCA;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: background 0.2s;
         }
 
         .toggle-slider::before {
             content: '';
             position: absolute;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: white;
-            top: 3px;
-            right: 3px;
+            top: 2px;
+            right: 2px;
             transition: transform 0.2s;
         }
 
@@ -481,7 +458,213 @@
         }
 
         .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(-20px);
+            transform: translateX(-16px);
+        }
+
+        .add-entry-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 10px;
+            background: none;
+            border: 1.5px dashed #C5BDCA;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8B59FF;
+            margin-top: 8px;
+            transition: all 0.15s;
+        }
+
+        .add-entry-btn:hover {
+            background: rgba(139,89,255,0.04);
+            border-color: #8B59FF;
+        }
+
+        .new-entry-form {
+            display: none;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8e5eb;
+            direction: rtl;
+        }
+
+        .new-entry-form.visible { display: block; }
+
+        .new-entry-form .type-selector {
+            display: inline-flex;
+            padding: 3px;
+            border-radius: 8px;
+            background: #EFEBF2;
+            margin-bottom: 8px;
+            gap: 0;
+        }
+
+        .new-entry-form .type-option {
+            padding: 4px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 500;
+            color: #666;
+            background: transparent;
+            transition: all 0.12s;
+        }
+
+        .new-entry-form .type-option.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .new-entry-form textarea {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            direction: rtl;
+            line-height: 1.5;
+            background: #f5f3f7;
+            color: #333;
+        }
+
+        .new-entry-form textarea:focus {
+            outline: none;
+            background: #f0edf3;
+        }
+
+        .new-entry-form textarea::placeholder { color: #aaa; }
+
+        .new-entry-form .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            direction: ltr;
+        }
+
+        .new-entry-form .form-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            transition: opacity 0.12s;
+        }
+
+        .new-entry-form .form-btn-save {
+            background: #8B59FF;
+            color: white;
+        }
+
+        .new-entry-form .form-btn-cancel {
+            background: #EFEBF2;
+            color: #666;
+        }
+
+        .cal-icon-btn {
+            background: none;
+            border: 1.5px solid #ddd;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .cal-icon-btn:hover { border-color: #999; }
+
+        .cal-icon-btn svg { width: 14px; height: 14px; }
+
+        .edit-entry-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .edit-entry-form .type-selector {
+            display: inline-flex;
+            padding: 3px;
+            border-radius: 8px;
+            background: #EFEBF2;
+            gap: 0;
+        }
+
+        .edit-entry-form .type-option {
+            padding: 4px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 500;
+            color: #666;
+            background: transparent;
+            transition: all 0.12s;
+        }
+
+        .edit-entry-form .type-option.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .edit-entry-form textarea {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            direction: rtl;
+            line-height: 1.5;
+            background: #f5f3f7;
+            color: #333;
+        }
+
+        .edit-entry-form textarea:focus {
+            outline: none;
+            background: #f0edf3;
+        }
+
+        .edit-entry-form .form-actions {
+            display: flex;
+            gap: 8px;
+            direction: ltr;
+        }
+
+        .edit-entry-form .form-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .edit-entry-form .form-btn-save {
+            background: #8B59FF;
+            color: white;
+        }
+
+        .edit-entry-form .form-btn-cancel {
+            background: #EFEBF2;
+            color: #666;
         }
 
         .modal-buttons {
@@ -502,28 +685,15 @@
 
         .btn:active { transform: scale(0.97); }
 
-        .btn-save {
-            height: 44px;
-            padding: 0 40px;
-            background: #8B59FF;
-            color: white;
-            font-size: 16px;
-        }
-        .btn-save:hover { opacity: 0.9; }
-
         .btn-cancel {
-            height: 44px;
-            padding: 0 40px;
+            height: 40px;
+            padding: 0 32px;
             background: transparent;
-            color: #8B59FF;
-            font-size: 16px;
-            border: 1.5px solid #8B59FF;
+            color: #666;
+            font-size: 14px;
+            border: 1.5px solid #ddd;
         }
-        .btn-cancel:hover { background: rgba(139,89,255,0.05); }
-
-        .btn-delete {
-            display: none;
-        }
+        .btn-cancel:hover { background: rgba(0,0,0,0.03); }
 
         .date-picker-overlay {
             display: none;
@@ -713,40 +883,22 @@
             <button class="modal-close" id="btnClose">&times;</button>
             <span class="modal-title" id="modalTitle"></span>
         </div>
-        <div class="modal-toolbar">
-            <button class="cal-icon-btn" id="calIconBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-            </button>
-            <div class="modal-tabs">
-                <button class="modal-tab active" data-type="general">אירוע</button>
-                <button class="modal-tab" data-type="vacation">חופש</button>
-            </div>
-        </div>
         <div class="date-picker-overlay" id="datePicker"></div>
-        <textarea id="modalText" placeholder="תאור ופרטים..."></textarea>
-        <div class="holiday-section" id="holidaySection">
-            <div class="holiday-row">
-                <div class="holiday-info">
-                    <span id="holidayName"></span>
-                    <span class="holiday-dates" id="holidayDates"></span>
-                </div>
-                <div class="holiday-toggle-wrap">
-                    <span class="holiday-toggle-label">הצגה בלוח</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="holidayToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
+        <div class="entries-list" id="entriesList"></div>
+        <div class="new-entry-form" id="newEntryForm">
+            <div class="type-selector" id="newTypeSelector">
+                <button class="type-option active" data-type="general">אירוע</button>
+                <button class="type-option" data-type="vacation">חופש</button>
+            </div>
+            <textarea id="newEntryText" placeholder="תאור ופרטים..."></textarea>
+            <div class="form-actions">
+                <button class="form-btn form-btn-save" id="newEntrySave">הוסף</button>
+                <button class="form-btn form-btn-cancel" id="newEntryCancel">ביטול</button>
             </div>
         </div>
+        <button class="add-entry-btn" id="addEntryBtn">+ הוסף תוכן</button>
         <div class="modal-buttons">
-            <button class="btn btn-save" id="btnSave">שמירה</button>
-            <button class="btn btn-cancel" id="btnCancel">ביטול</button>
+            <button class="btn btn-cancel" id="btnCancel">סגור</button>
         </div>
     </div>
 </div>
@@ -796,44 +948,49 @@
 
     async function loadData(year) {
         var result = {};
-        var { data, error } = await sb
+        var { data } = await sb
             .from("calendar_entries")
-            .select("month, day, content, type, hidden")
+            .select("id, month, day, content, type, hidden")
             .eq("year", year);
 
         if (data) {
             data.forEach(function(row) {
                 var key = dataKey(row.month, row.day);
-                if (!result[key]) result[key] = {};
-                if (row.type === "holiday" && row.hidden) {
-                    result[key]._holidayHidden = row.content;
-                } else {
-                    result[key][row.type || "general"] = row.content;
-                }
+                if (!result[key]) result[key] = [];
+                result[key].push({
+                    id: row.id,
+                    type: row.type || "general",
+                    content: row.content,
+                    hidden: row.hidden || false
+                });
             });
         }
         return result;
     }
 
-    async function saveEntryToDB(year, month, day, content, type) {
-        await sb.from("calendar_entries").upsert({
-            year: year,
-            month: month,
-            day: day,
-            content: content,
-            type: type,
+    async function insertEntryToDB(year, month, day, content, type) {
+        var { data } = await sb.from("calendar_entries").insert({
+            year: year, month: month, day: day,
+            content: content, type: type,
             updated_at: new Date().toISOString()
-        }, { onConflict: "year,month,day,type" });
+        }).select("id");
+        return data && data[0] ? data[0].id : null;
     }
 
-    async function deleteEntryFromDB(year, month, day, type) {
-        var q = sb.from("calendar_entries")
-            .delete()
-            .eq("year", year)
-            .eq("month", month)
-            .eq("day", day);
-        if (type) q = q.eq("type", type);
-        await q;
+    async function updateEntryInDB(id, content, type) {
+        await sb.from("calendar_entries")
+            .update({ content: content, type: type, updated_at: new Date().toISOString() })
+            .eq("id", id);
+    }
+
+    async function deleteEntryByIdFromDB(id) {
+        await sb.from("calendar_entries").delete().eq("id", id);
+    }
+
+    async function toggleHolidayInDB(id, hidden) {
+        await sb.from("calendar_entries")
+            .update({ hidden: hidden })
+            .eq("id", id);
     }
 
     async function loadNotesFromDB(year) {
@@ -916,59 +1073,43 @@
                     dateRow.className = "date-row";
 
                     var key = dataKey(m, dayNum);
-                    var entries = calendarData[key];
+                    var entries = calendarData[key] || [];
 
                     var numSpan = document.createElement("span");
                     numSpan.textContent = dayNum;
                     dateRow.appendChild(numSpan);
 
-                    if (entries) {
-                        if (entries.vacation) cell.classList.add("vacation-cell");
-                        if ((entries.holiday || entries._holidayHidden) && weekday !== 5 && weekday !== 6) cell.classList.add("holiday-cell");
+                    var hasHoliday = entries.some(function(e) { return e.type === "holiday"; });
+                    var hasHolidayAny = entries.some(function(e) { return e.type === "holiday"; });
+                    var hasGeneral = entries.some(function(e) { return e.type === "general"; });
+                    var hasVacation = entries.some(function(e) { return e.type === "vacation"; });
 
-                        if (entries.holiday || entries._holidayHidden) {
-                            var dotH = document.createElement("div");
-                            dotH.className = "type-dot type-holiday";
-                            dateRow.appendChild(dotH);
+                    if (hasVacation) cell.classList.add("vacation-cell");
+                    if (hasHolidayAny && weekday !== 5 && weekday !== 6) cell.classList.add("holiday-cell");
+
+                    var typesShown = {};
+                    entries.forEach(function(e) {
+                        if (!typesShown[e.type]) {
+                            typesShown[e.type] = true;
+                            var dot = document.createElement("div");
+                            dot.className = "type-dot type-" + e.type;
+                            dateRow.appendChild(dot);
                         }
-                        if (entries.general) {
-                            var dotG = document.createElement("div");
-                            dotG.className = "type-dot type-general";
-                            dateRow.appendChild(dotG);
-                        }
-                        if (entries.vacation) {
-                            var dotV = document.createElement("div");
-                            dotV.className = "type-dot type-vacation";
-                            dateRow.appendChild(dotV);
-                        }
-                    }
+                    });
 
                     cell.appendChild(dateRow);
 
-                    if (entries) {
+                    if (entries.length > 0) {
                         cell.dataset.key = key;
                         var tipParts = [];
-                        if (entries.holiday) {
-                            var hp = document.createElement("div");
-                            hp.className = "content-preview holiday-preview";
-                            hp.textContent = entries.holiday;
-                            cell.appendChild(hp);
-                            tipParts.push(entries.holiday);
-                        }
-                        if (entries.general) {
-                            var gp = document.createElement("div");
-                            gp.className = "content-preview";
-                            gp.textContent = entries.general;
-                            cell.appendChild(gp);
-                            tipParts.push(entries.general);
-                        }
-                        if (entries.vacation) {
-                            var vp = document.createElement("div");
-                            vp.className = "content-preview";
-                            vp.textContent = entries.vacation;
-                            cell.appendChild(vp);
-                            tipParts.push(entries.vacation);
-                        }
+                        entries.forEach(function(e) {
+                            if (e.hidden) return;
+                            var p = document.createElement("div");
+                            p.className = "content-preview" + (e.type === "holiday" ? " holiday-preview" : "");
+                            p.textContent = e.content;
+                            cell.appendChild(p);
+                            tipParts.push(e.content);
+                        });
                         if (tipParts.length > 0) cell.dataset.tip = tipParts.join(" | ");
                     }
 
@@ -1030,9 +1171,9 @@
         for (var m = 0; m < 12; m++) {
             for (var d = 1; d <= getDaysInMonth(currentYear, m); d++) {
                 var k = dataKey(m, d);
-                var entries = calendarData[k];
-                var h = entries && (entries.holiday || entries._holidayHidden);
-                if (h && getHolidayBase(h) === base) {
+                var arr = calendarData[k] || [];
+                var holiday = arr.find(function(e) { return e.type === "holiday"; });
+                if (holiday && getHolidayBase(holiday.content) === base) {
                     if (startDay === null) { startMonth = m; startDay = d; }
                     endMonth = m; endDay = d;
                 }
@@ -1044,6 +1185,9 @@
         if (sd === ed) return sd;
         return sd + " - " + ed;
     }
+
+    var TYPE_LABELS = { holiday: "חג", general: "אירוע", vacation: "חופש" };
+    var TYPE_COLORS = { holiday: "#FF8400", general: "#FFDD28", vacation: "#35E494" };
 
     function openEditor(month, day) {
         var key = dataKey(month, day);
@@ -1058,48 +1202,197 @@
         document.getElementById("modalTitle").textContent =
             dd + "." + mm + "  " + WEEKDAYS_FULL[dow];
 
-        var entries = calendarData[key] || {};
-        var text = entries.general || entries.vacation || "";
-        currentType = entries.vacation ? "vacation" : "general";
-
-        document.getElementById("modalText").value = text;
-
         dpStartDate = new Date(currentYear, month, day);
         dpEndDate = new Date(currentYear, month, day);
         dpDefaultDate = new Date(currentYear, month, day);
         dpViewMonth = month;
         dpViewYear = currentYear;
 
-        var holidaySection = document.getElementById("holidaySection");
-        if (entries.holiday) {
-            holidaySection.classList.add("visible");
-            document.getElementById("holidayName").textContent = entries.holiday;
-            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries.holiday);
-            document.getElementById("holidayToggle").checked = true;
-        } else if (entries._holidayHidden) {
-            holidaySection.classList.add("visible");
-            document.getElementById("holidayName").textContent = entries._holidayHidden;
-            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries._holidayHidden);
-            document.getElementById("holidayToggle").checked = false;
-        } else {
-            holidaySection.classList.remove("visible");
-        }
-
-        updateTabsUI();
+        document.getElementById("newEntryForm").classList.remove("visible");
+        document.getElementById("addEntryBtn").style.display = "";
         document.getElementById("datePicker").classList.remove("active");
 
+        renderEntriesList();
         document.getElementById("modalOverlay").classList.add("active");
-        setTimeout(function() { document.getElementById("modalText").focus(); }, 100);
     }
 
-    function updateTabsUI() {
-        document.querySelectorAll(".modal-tab").forEach(function(tab) {
-            tab.classList.remove("active");
-            if (tab.dataset.type === currentType) {
-                tab.classList.add("active");
+    function renderEntriesList() {
+        var list = document.getElementById("entriesList");
+        var entries = calendarData[currentEditKey] || [];
+        var html = "";
+
+        entries.forEach(function(entry) {
+            var tagClass = "tag-" + entry.type;
+            var isHoliday = entry.type === "holiday";
+
+            html += '<div class="entry-card" data-entry-id="' + entry.id + '">';
+            html += '<div class="entry-card-header">';
+            html += '<span class="entry-type-tag ' + tagClass + '"><span class="tag-dot"></span>' + TYPE_LABELS[entry.type] + '</span>';
+            if (isHoliday) {
+                html += '<span style="font-size:12px;color:#666;">' + findHolidayDateRange(entry.content) + '</span>';
             }
+            if (!isHoliday) {
+                html += '<div class="entry-actions">';
+                html += '<button class="entry-action-btn edit-entry-btn" data-id="' + entry.id + '" title="ערוך"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+                html += '<button class="entry-action-btn delete-entry-btn" data-id="' + entry.id + '" title="מחק"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>';
+                html += '</div>';
+            }
+            html += '</div>';
+
+            if (isHoliday) {
+                html += '<div class="entry-content">' + entry.content + '</div>';
+                html += '<div class="holiday-toggle-row">';
+                html += '<label class="toggle-switch"><input type="checkbox" class="holiday-toggle-cb" data-id="' + entry.id + '"' + (entry.hidden ? '' : ' checked') + '><span class="toggle-slider"></span></label>';
+                html += '<span class="holiday-toggle-label">הצגה בלוח</span>';
+                html += '</div>';
+            } else {
+                html += '<div class="entry-content">' + entry.content + '</div>';
+            }
+
+            html += '</div>';
+        });
+
+        if (entries.length === 0) {
+            html = '<div style="text-align:center;padding:30px 0;color:#aaa;font-size:14px;">אין תוכן עדיין</div>';
+        }
+
+        list.innerHTML = html;
+
+        list.querySelectorAll(".edit-entry-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() { startEditEntry(parseInt(btn.dataset.id)); });
+        });
+
+        list.querySelectorAll(".delete-entry-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() { deleteEntryById(parseInt(btn.dataset.id)); });
+        });
+
+        list.querySelectorAll(".holiday-toggle-cb").forEach(function(cb) {
+            cb.addEventListener("change", function() {
+                toggleHoliday(parseInt(cb.dataset.id), !cb.checked);
+            });
         });
     }
+
+    function startEditEntry(entryId) {
+        var entries = calendarData[currentEditKey] || [];
+        var entry = entries.find(function(e) { return e.id === entryId; });
+        if (!entry) return;
+
+        var card = document.querySelector('.entry-card[data-entry-id="' + entryId + '"]');
+        if (!card) return;
+
+        var editType = entry.type;
+        var editHtml = '<div class="edit-entry-form">';
+        editHtml += '<div class="type-selector">';
+        editHtml += '<button class="type-option' + (editType === "general" ? " active" : "") + '" data-type="general">אירוע</button>';
+        editHtml += '<button class="type-option' + (editType === "vacation" ? " active" : "") + '" data-type="vacation">חופש</button>';
+        editHtml += '</div>';
+        editHtml += '<textarea>' + entry.content + '</textarea>';
+        editHtml += '<div class="form-actions">';
+        editHtml += '<button class="form-btn form-btn-save">שמור</button>';
+        editHtml += '<button class="form-btn form-btn-cancel">ביטול</button>';
+        editHtml += '</div></div>';
+
+        card.innerHTML = editHtml;
+
+        card.querySelectorAll(".type-option").forEach(function(opt) {
+            opt.addEventListener("click", function() {
+                card.querySelectorAll(".type-option").forEach(function(o) { o.classList.remove("active"); });
+                opt.classList.add("active");
+                editType = opt.dataset.type;
+            });
+        });
+
+        card.querySelector(".form-btn-save").addEventListener("click", async function() {
+            var newText = card.querySelector("textarea").value.trim();
+            if (!newText) return;
+            entry.content = newText;
+            entry.type = editType;
+            await updateEntryInDB(entryId, newText, editType);
+            renderEntriesList();
+            renderCalendar();
+        });
+
+        card.querySelector(".form-btn-cancel").addEventListener("click", function() {
+            renderEntriesList();
+        });
+
+        card.querySelector("textarea").focus();
+    }
+
+    async function deleteEntryById(entryId) {
+        var entries = calendarData[currentEditKey] || [];
+        calendarData[currentEditKey] = entries.filter(function(e) { return e.id !== entryId; });
+        if (calendarData[currentEditKey].length === 0) delete calendarData[currentEditKey];
+        await deleteEntryByIdFromDB(entryId);
+        renderEntriesList();
+        renderCalendar();
+    }
+
+    async function toggleHoliday(entryId, hidden) {
+        var entries = calendarData[currentEditKey] || [];
+        var entry = entries.find(function(e) { return e.id === entryId; });
+        if (!entry) return;
+        entry.hidden = hidden;
+        await toggleHolidayInDB(entryId, hidden);
+        renderCalendar();
+    }
+
+    var newEntryType = "general";
+    document.getElementById("addEntryBtn").addEventListener("click", function() {
+        document.getElementById("newEntryForm").classList.add("visible");
+        document.getElementById("addEntryBtn").style.display = "none";
+        document.getElementById("newEntryText").value = "";
+        newEntryType = "general";
+        document.querySelectorAll("#newTypeSelector .type-option").forEach(function(o) {
+            o.classList.toggle("active", o.dataset.type === "general");
+        });
+        setTimeout(function() { document.getElementById("newEntryText").focus(); }, 50);
+    });
+
+    document.querySelectorAll("#newTypeSelector .type-option").forEach(function(opt) {
+        opt.addEventListener("click", function() {
+            document.querySelectorAll("#newTypeSelector .type-option").forEach(function(o) { o.classList.remove("active"); });
+            opt.classList.add("active");
+            newEntryType = opt.dataset.type;
+        });
+    });
+
+    document.getElementById("newEntrySave").addEventListener("click", async function() {
+        var text = document.getElementById("newEntryText").value.trim();
+        if (!text) return;
+
+        var hasRange = dpStartDate && dpEndDate && dpStartDate.getTime() !== dpEndDate.getTime();
+
+        if (hasRange) {
+            var d = new Date(dpStartDate);
+            while (d <= dpEndDate) {
+                var m = d.getMonth();
+                var dd = d.getDate();
+                var key = dataKey(m, dd);
+                if (!calendarData[key]) calendarData[key] = [];
+                var newId = await insertEntryToDB(currentYear, m, dd, text, newEntryType);
+                calendarData[key].push({ id: newId, type: newEntryType, content: text, hidden: false });
+                d.setDate(d.getDate() + 1);
+            }
+        } else {
+            if (!calendarData[currentEditKey]) calendarData[currentEditKey] = [];
+            var newId = await insertEntryToDB(currentYear, currentEditMonth, currentEditDay, text, newEntryType);
+            calendarData[currentEditKey].push({ id: newId, type: newEntryType, content: text, hidden: false });
+        }
+
+        document.getElementById("newEntryForm").classList.remove("visible");
+        document.getElementById("addEntryBtn").style.display = "";
+        dpStartDate = dpDefaultDate;
+        dpEndDate = dpDefaultDate;
+        renderEntriesList();
+        renderCalendar();
+    });
+
+    document.getElementById("newEntryCancel").addEventListener("click", function() {
+        document.getElementById("newEntryForm").classList.remove("visible");
+        document.getElementById("addEntryBtn").style.display = "";
+    });
 
     function renderDatePicker() {
         var dp = document.getElementById("datePicker");
@@ -1176,76 +1469,6 @@
         currentEditKey = null;
     }
 
-    async function toggleHolidayVisibility(year, month, day, hidden) {
-        await sb.from("calendar_entries")
-            .update({ hidden: hidden })
-            .eq("year", year)
-            .eq("month", month)
-            .eq("day", day)
-            .eq("type", "holiday");
-    }
-
-    async function saveEntry() {
-        var text = document.getElementById("modalText").value.trim();
-
-        var holidaySection = document.getElementById("holidaySection");
-        if (holidaySection.classList.contains("visible")) {
-            var toggle = document.getElementById("holidayToggle");
-            var entries = calendarData[currentEditKey] || {};
-            if (!toggle.checked && entries.holiday) {
-                entries._holidayHidden = entries.holiday;
-                delete entries.holiday;
-                await toggleHolidayVisibility(currentYear, currentEditMonth, currentEditDay, true);
-            } else if (toggle.checked && entries._holidayHidden) {
-                entries.holiday = entries._holidayHidden;
-                delete entries._holidayHidden;
-                await toggleHolidayVisibility(currentYear, currentEditMonth, currentEditDay, false);
-            }
-        }
-
-        if (currentType === "vacation" && text) {
-            var startDate = dpStartDate || new Date(currentYear, currentEditMonth, currentEditDay);
-            var endDate = dpEndDate || startDate;
-            if (endDate < startDate) { var tmp = startDate; startDate = endDate; endDate = tmp; }
-            var promises = [];
-            var d = new Date(startDate);
-            while (d <= endDate) {
-                var m = d.getMonth();
-                var dd = d.getDate();
-                var key = dataKey(m, dd);
-                if (!calendarData[key]) calendarData[key] = {};
-                calendarData[key].vacation = text;
-                promises.push(saveEntryToDB(d.getFullYear(), m, dd, text, "vacation"));
-                d.setDate(d.getDate() + 1);
-            }
-            await Promise.all(promises);
-        } else if (text) {
-            if (!calendarData[currentEditKey]) calendarData[currentEditKey] = {};
-            calendarData[currentEditKey].general = text;
-            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, "general");
-        } else {
-            if (calendarData[currentEditKey]) {
-                delete calendarData[currentEditKey].general;
-                delete calendarData[currentEditKey].vacation;
-            }
-            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "general");
-            await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "vacation");
-        }
-        closeEditor();
-        renderCalendar();
-    }
-
-    async function deleteEntry() {
-        if (calendarData[currentEditKey]) {
-            delete calendarData[currentEditKey].general;
-            delete calendarData[currentEditKey].vacation;
-        }
-        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "general");
-        await deleteEntryFromDB(currentYear, currentEditMonth, currentEditDay, "vacation");
-        closeEditor();
-        renderCalendar();
-    }
-
     async function loadBottomSections() {
         var notes = await loadNotesFromDB(currentYear);
         document.getElementById("yearlyPlan").value = notes["plan"] || "";
@@ -1264,26 +1487,8 @@
         });
     }
 
-    document.getElementById("btnSave").addEventListener("click", saveEntry);
     document.getElementById("btnCancel").addEventListener("click", closeEditor);
     document.getElementById("btnClose").addEventListener("click", closeEditor);
-
-    document.querySelectorAll(".modal-tab").forEach(function(tab) {
-        tab.addEventListener("click", function() {
-            currentType = tab.dataset.type;
-            updateTabsUI();
-        });
-    });
-
-    document.getElementById("calIconBtn").addEventListener("click", function() {
-        var dp = document.getElementById("datePicker");
-        if (dp.classList.contains("active")) {
-            dp.classList.remove("active");
-        } else {
-            renderDatePicker();
-            dp.classList.add("active");
-        }
-    });
 
     document.getElementById("modalOverlay").addEventListener("click", function(e) {
         if (e.target === e.currentTarget) closeEditor();
@@ -1292,7 +1497,6 @@
     document.addEventListener("keydown", function(e) {
         if (!document.getElementById("modalOverlay").classList.contains("active")) return;
         if (e.key === "Escape") closeEditor();
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveEntry();
     });
 
     var tooltip = document.getElementById("cellTooltip");
@@ -1309,28 +1513,15 @@
 
         var html = '';
         var dateText = cell.querySelector(".date-row span") ? cell.querySelector(".date-row span").textContent : "";
-        var dotEl = cell.querySelector(".type-dot");
-        var dotColor = dotEl ? getComputedStyle(dotEl).backgroundColor : "";
-
         html += '<div class="tt-date">' + dateText + '</div>';
 
-        var entries = calendarData[cell.dataset.key];
-        if (!entries) {
-            var parts = cell.dataset.tip.split(" | ");
-            parts.forEach(function(p) {
-                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + p + '</div></div>';
-            });
-        } else {
-            if (entries.holiday) {
-                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FF8400"></div><div class="tt-holiday">' + entries.holiday + '</div></div>';
-            }
-            if (entries.general) {
-                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + entries.general + '</div></div>';
-            }
-            if (entries.vacation) {
-                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + entries.vacation + '</div></div>';
-            }
-        }
+        var entries = calendarData[cell.dataset.key] || [];
+        entries.forEach(function(entry) {
+            if (entry.hidden) return;
+            var dotColor = TYPE_COLORS[entry.type] || "#FFDD28";
+            var textClass = entry.type === "holiday" ? "tt-holiday" : "tt-content";
+            html += '<div class="tt-line"><div class="tt-line-dot" style="background:' + dotColor + '"></div><div class="' + textClass + '">' + entry.content + '</div></div>';
+        });
 
         tooltip.innerHTML = html;
         tooltip.classList.add("active");
