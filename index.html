@@ -906,6 +906,7 @@
                     if (entries) {
                         if (entries.vacation) mainType = "vacation";
                         else if (entries.holiday) mainType = "holiday";
+                        else if (entries._holidayHidden) mainType = "holiday";
                         else if (entries.general) mainType = "general";
                     }
 
