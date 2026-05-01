@@ -954,12 +954,18 @@
     var dpViewMonth = null;
     var dpViewYear = null;
 
+    function getHolidayBase(text) {
+        return text.replace(/[\s]*(א|ב|ג|ד|ה|ו|ז|ח|\(חוה"מ\))$/, "").trim();
+    }
+
     function findHolidayDateRange(holidayText, month) {
+        var base = getHolidayBase(holidayText);
         var startDay = null, endDay = null;
         for (var d = 1; d <= getDaysInMonth(currentYear, month); d++) {
             var k = dataKey(month, d);
             var entries = calendarData[k];
-            if (entries && (entries.holiday === holidayText || entries._holidayHidden === holidayText)) {
+            var h = entries && (entries.holiday || entries._holidayHidden);
+            if (h && getHolidayBase(h) === base) {
                 if (startDay === null) startDay = d;
                 endDay = d;
             }
