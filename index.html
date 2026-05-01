@@ -1001,22 +1001,25 @@
         return s;
     }
 
-    function findHolidayDateRange(holidayText, month) {
+    function findHolidayDateRange(holidayText) {
         var base = getHolidayBase(holidayText);
-        var startDay = null, endDay = null;
-        for (var d = 1; d <= getDaysInMonth(currentYear, month); d++) {
-            var k = dataKey(month, d);
-            var entries = calendarData[k];
-            var h = entries && (entries.holiday || entries._holidayHidden);
-            if (h && getHolidayBase(h) === base) {
-                if (startDay === null) startDay = d;
-                endDay = d;
+        var startMonth = null, startDay = null, endMonth = null, endDay = null;
+        for (var m = 0; m < 12; m++) {
+            for (var d = 1; d <= getDaysInMonth(currentYear, m); d++) {
+                var k = dataKey(m, d);
+                var entries = calendarData[k];
+                var h = entries && (entries.holiday || entries._holidayHidden);
+                if (h && getHolidayBase(h) === base) {
+                    if (startDay === null) { startMonth = m; startDay = d; }
+                    endMonth = m; endDay = d;
+                }
             }
         }
         if (startDay === null) return "";
-        var sm = String(month + 1).padStart(2, "0");
-        if (startDay === endDay) return String(startDay).padStart(2, "0") + "." + sm;
-        return String(startDay).padStart(2, "0") + "." + sm + " - " + String(endDay).padStart(2, "0") + "." + sm;
+        var sd = String(startDay).padStart(2, "0") + "." + String(startMonth + 1).padStart(2, "0");
+        var ed = String(endDay).padStart(2, "0") + "." + String(endMonth + 1).padStart(2, "0");
+        if (sd === ed) return sd;
+        return sd + " - " + ed;
     }
 
     function openEditor(month, day) {
@@ -1048,12 +1051,12 @@
         if (entries.holiday) {
             holidaySection.classList.add("visible");
             document.getElementById("holidayName").textContent = entries.holiday;
-            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries.holiday, month);
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries.holiday);
             document.getElementById("holidayToggle").checked = true;
         } else if (entries._holidayHidden) {
             holidaySection.classList.add("visible");
             document.getElementById("holidayName").textContent = entries._holidayHidden;
-            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries._holidayHidden, month);
+            document.getElementById("holidayDates").textContent = findHolidayDateRange(entries._holidayHidden);
             document.getElementById("holidayToggle").checked = false;
         } else {
             holidaySection.classList.remove("visible");
