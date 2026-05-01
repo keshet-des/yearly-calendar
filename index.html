@@ -334,38 +334,6 @@
             direction: ltr;
         }
 
-        .range-indicator {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #666;
-            direction: rtl;
-        }
-
-        .range-indicator.visible { display: flex; }
-
-        .range-indicator .range-text {
-            background: #FFF3B0;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .range-indicator .range-clear {
-            background: none;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            color: #999;
-            padding: 2px 4px;
-        }
-
-        .range-indicator .range-clear:hover { color: #333; }
-
         .modal-tabs {
             display: inline-flex;
             padding: 4px;
@@ -760,10 +728,6 @@
             </div>
         </div>
         <div class="date-picker-overlay" id="datePicker"></div>
-        <div class="range-indicator" id="rangeIndicator">
-            <span class="range-text" id="rangeText"></span>
-            <button class="range-clear" id="rangeClear">&times;</button>
-        </div>
         <textarea id="modalText" placeholder="תאור ופרטים..."></textarea>
         <div class="holiday-section" id="holidaySection">
             <div class="holiday-row">
@@ -1117,24 +1081,10 @@
         }
 
         updateTabsUI();
-        updateRangeIndicator();
         document.getElementById("datePicker").classList.remove("active");
 
         document.getElementById("modalOverlay").classList.add("active");
         setTimeout(function() { document.getElementById("modalText").focus(); }, 100);
-    }
-
-    function updateRangeIndicator() {
-        var indicator = document.getElementById("rangeIndicator");
-        var hasRange = dpStartDate && dpEndDate && dpStartDate.getTime() !== dpEndDate.getTime();
-        if (hasRange) {
-            var sd = String(dpStartDate.getDate()).padStart(2, "0") + "." + String(dpStartDate.getMonth() + 1).padStart(2, "0");
-            var ed = String(dpEndDate.getDate()).padStart(2, "0") + "." + String(dpEndDate.getMonth() + 1).padStart(2, "0");
-            document.getElementById("rangeText").textContent = sd + " - " + ed;
-            indicator.classList.add("visible");
-        } else {
-            indicator.classList.remove("visible");
-        }
     }
 
     function updateTabsUI() {
@@ -1172,15 +1122,12 @@
                     dpStartDate = dpDefaultDate;
                     dpEndDate = dpDefaultDate;
                     renderDatePicker();
-                    updateRangeIndicator();
                     return;
                 }
                 if (d <= dpDefaultDate) return;
                 dpStartDate = dpDefaultDate;
                 dpEndDate = d;
                 renderDatePicker();
-                updateRangeIndicator();
-                setTimeout(function() { dp.classList.remove("active"); }, 300);
             });
         });
     }
@@ -1251,11 +1198,10 @@
             }
         }
 
-        var hasRange = dpStartDate && dpEndDate && dpStartDate.getTime() !== dpEndDate.getTime();
-
-        if (text && hasRange) {
-            var startDate = dpStartDate;
-            var endDate = dpEndDate;
+        if (currentType === "vacation" && text) {
+            var startDate = dpStartDate || new Date(currentYear, currentEditMonth, currentEditDay);
+            var endDate = dpEndDate || startDate;
+            if (endDate < startDate) { var tmp = startDate; startDate = endDate; endDate = tmp; }
             var promises = [];
             var d = new Date(startDate);
             while (d <= endDate) {
@@ -1263,15 +1209,15 @@
                 var dd = d.getDate();
                 var key = dataKey(m, dd);
                 if (!calendarData[key]) calendarData[key] = {};
-                calendarData[key][currentType] = text;
-                promises.push(saveEntryToDB(d.getFullYear(), m, dd, text, currentType));
+                calendarData[key].vacation = text;
+                promises.push(saveEntryToDB(d.getFullYear(), m, dd, text, "vacation"));
                 d.setDate(d.getDate() + 1);
             }
             await Promise.all(promises);
         } else if (text) {
             if (!calendarData[currentEditKey]) calendarData[currentEditKey] = {};
-            calendarData[currentEditKey][currentType] = text;
-            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, currentType);
+            calendarData[currentEditKey].general = text;
+            await saveEntryToDB(currentYear, currentEditMonth, currentEditDay, text, "general");
         } else {
             if (calendarData[currentEditKey]) {
                 delete calendarData[currentEditKey].general;
@@ -1316,12 +1262,6 @@
     document.getElementById("btnSave").addEventListener("click", saveEntry);
     document.getElementById("btnCancel").addEventListener("click", closeEditor);
     document.getElementById("btnClose").addEventListener("click", closeEditor);
-
-    document.getElementById("rangeClear").addEventListener("click", function() {
-        dpStartDate = dpDefaultDate;
-        dpEndDate = dpDefaultDate;
-        updateRangeIndicator();
-    });
 
     document.querySelectorAll(".modal-tab").forEach(function(tab) {
         tab.addEventListener("click", function() {
