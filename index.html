@@ -163,9 +163,9 @@
             flex-shrink: 0;
         }
 
-        .type-dot.type-general { background: #3498db; }
+        .type-dot.type-general { background: #FFDD28; }
         .type-dot.type-holiday { background: #FF8400; }
-        .type-dot.type-vacation { background: #45EDCC; }
+        .type-dot.type-vacation { background: #FFDD28; }
 
         .day-cell.vacation-cell { background: #F7F5F9 !important; }
         .day-cell.holiday-cell { background: white !important; }
@@ -210,7 +210,7 @@
             background: white;
             height: 140px;
             border-radius: 6px;
-            box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
             z-index: 9999;
             pointer-events: none;
             direction: rtl;
@@ -235,24 +235,33 @@
             gap: 3px;
         }
 
-        .cell-tooltip .tt-dot {
-            width: 6px;
-            height: 6px;
+        .cell-tooltip .tt-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .cell-tooltip .tt-line-dot {
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             flex-shrink: 0;
+            margin-top: 5px;
         }
 
         .cell-tooltip .tt-holiday {
             font-size: 13px;
             color: #66606A;
-            margin-bottom: 2px;
-            line-height: 1.3;
+            word-break: normal;
+            overflow-wrap: break-word;
+            white-space: normal;
         }
 
         .cell-tooltip .tt-content {
             font-size: 13px;
             color: #000;
-            line-height: 1.3;
             word-break: normal;
             overflow-wrap: break-word;
             white-space: normal;
@@ -278,7 +287,7 @@
             width: 500px;
             min-height: 390px;
             max-width: 95vw;
-            box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
             animation: modalIn 0.2s ease-out;
             display: flex;
             flex-direction: column;
@@ -326,11 +335,12 @@
         }
 
         .modal-tabs {
-            display: flex;
-            gap: 0;
-            background: #f0f0f0;
-            border-radius: 20px;
-            padding: 3px;
+            display: inline-flex;
+            padding: 4px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            background: #EFEBF2;
         }
 
         .modal-tab {
@@ -523,7 +533,7 @@
             z-index: 10;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
             padding: 20px 16px 16px;
             direction: rtl;
         }
@@ -1297,18 +1307,24 @@
         var dotEl = cell.querySelector(".type-dot");
         var dotColor = dotEl ? getComputedStyle(dotEl).backgroundColor : "";
 
-        html += '<div class="tt-date">' + dateText;
-        if (dotColor) html += '<div class="tt-dot" style="background:' + dotColor + '"></div>';
-        html += '</div>';
+        html += '<div class="tt-date">' + dateText + '</div>';
 
         var entries = calendarData[cell.dataset.key];
         if (!entries) {
             var parts = cell.dataset.tip.split(" | ");
-            parts.forEach(function(p) { html += '<div class="tt-content">' + p + '</div>'; });
+            parts.forEach(function(p) {
+                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + p + '</div></div>';
+            });
         } else {
-            if (entries.holiday) html += '<div class="tt-holiday">' + entries.holiday + '</div>';
-            if (entries.general) html += '<div class="tt-content">' + entries.general + '</div>';
-            if (entries.vacation) html += '<div class="tt-content">' + entries.vacation + '</div>';
+            if (entries.holiday) {
+                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FF8400"></div><div class="tt-holiday">' + entries.holiday + '</div></div>';
+            }
+            if (entries.general) {
+                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + entries.general + '</div></div>';
+            }
+            if (entries.vacation) {
+                html += '<div class="tt-line"><div class="tt-line-dot" style="background:#FFDD28"></div><div class="tt-content">' + entries.vacation + '</div></div>';
+            }
         }
 
         tooltip.innerHTML = html;
