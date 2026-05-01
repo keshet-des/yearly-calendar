@@ -583,24 +583,19 @@
 
         .dp-day:hover { background: #f0f0f0; }
 
-        .dp-day.selected {
+        .dp-day.default-day {
             background: #FFDD28;
             font-weight: 700;
-            z-index: 1;
-        }
-
-        .dp-day.range-start {
-            background: #FFDD28;
-            font-weight: 700;
-            border-radius: 50% 0 0 50%;
-            z-index: 1;
+            border-radius: 50%;
+            cursor: default;
+            z-index: 2;
         }
 
         .dp-day.range-end {
             background: #FFDD28;
             font-weight: 700;
-            border-radius: 0 50% 50% 0;
-            z-index: 1;
+            border-radius: 50%;
+            z-index: 2;
         }
 
         .dp-day.in-range {
@@ -608,10 +603,12 @@
             border-radius: 0;
         }
 
-        .dp-day.default-day {
-            background: #FFDD28;
-            font-weight: 700;
-            cursor: default;
+        .dp-day.default-day.has-range {
+            border-radius: 50% 0 0 50%;
+        }
+
+        .dp-day.range-end.has-range {
+            border-radius: 0 50% 50% 0;
         }
 
         .dp-day.empty { cursor: default; }
@@ -1098,13 +1095,9 @@
             dayEl.addEventListener("click", function() {
                 var d = new Date(parseInt(dayEl.dataset.year), parseInt(dayEl.dataset.month), parseInt(dayEl.dataset.day));
                 if (dpDefaultDate && d.getTime() === dpDefaultDate.getTime()) return;
-                if (d < dpDefaultDate) {
-                    dpStartDate = d;
-                    dpEndDate = dpDefaultDate;
-                } else {
-                    dpStartDate = dpDefaultDate;
-                    dpEndDate = d;
-                }
+                if (d <= dpDefaultDate) return;
+                dpStartDate = dpDefaultDate;
+                dpEndDate = d;
                 renderDatePicker();
             });
         });
@@ -1130,13 +1123,11 @@
 
             var cls = "dp-day";
             if (isDefault && !hasRange) {
-                cls += " default-day selected";
-            } else if (isStart && hasRange) {
-                cls += " range-start";
+                cls += " default-day";
+            } else if (isDefault && hasRange) {
+                cls += " default-day has-range";
             } else if (isEnd && hasRange) {
-                cls += " range-end";
-            } else if (isDefault) {
-                cls += " default-day selected";
+                cls += " range-end has-range";
             } else if (isInRange) {
                 cls += " in-range";
             }
