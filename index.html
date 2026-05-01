@@ -564,7 +564,8 @@
         .dp-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
+            row-gap: 2px;
+            column-gap: 0;
         }
 
         .dp-day {
@@ -587,28 +588,35 @@
             background: #FFDD28;
             font-weight: 700;
             border-radius: 50%;
-            cursor: default;
+            cursor: pointer;
             z-index: 2;
         }
 
+        .dp-day.default-day.has-range::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: #FFF3B0;
+            z-index: -1;
+        }
+
         .dp-day.range-end {
-            background: #FFDD28;
-            font-weight: 700;
-            border-radius: 50%;
-            z-index: 2;
+            background: #FFF3B0;
+            font-weight: 600;
+            border-radius: 0;
+            z-index: 1;
+        }
+
+        .dp-day.range-end.has-range {
+            border-radius: 50% 0 0 50%;
         }
 
         .dp-day.in-range {
             background: #FFF3B0;
             border-radius: 0;
-        }
-
-        .dp-day.default-day.has-range {
-            border-radius: 50% 0 0 50%;
-        }
-
-        .dp-day.range-end.has-range {
-            border-radius: 0 50% 50% 0;
         }
 
         .dp-day.empty { cursor: default; }
@@ -1097,10 +1105,15 @@
             dp.classList.remove("active");
         });
 
-        dp.querySelectorAll(".dp-day:not(.empty):not(.default-day)").forEach(function(dayEl) {
+        dp.querySelectorAll(".dp-day:not(.empty)").forEach(function(dayEl) {
             dayEl.addEventListener("click", function() {
                 var d = new Date(parseInt(dayEl.dataset.year), parseInt(dayEl.dataset.month), parseInt(dayEl.dataset.day));
-                if (dpDefaultDate && d.getTime() === dpDefaultDate.getTime()) return;
+                if (dpDefaultDate && d.getTime() === dpDefaultDate.getTime()) {
+                    dpStartDate = dpDefaultDate;
+                    dpEndDate = dpDefaultDate;
+                    renderDatePicker();
+                    return;
+                }
                 if (d <= dpDefaultDate) return;
                 dpStartDate = dpDefaultDate;
                 dpEndDate = d;
