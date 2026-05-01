@@ -995,7 +995,10 @@
     var dpViewYear = null;
 
     function getHolidayBase(text) {
-        return text.replace(/[\s]*(א|ב|ג|ד|ה|ו|ז|ח|\(חוה"מ\))$/, "").trim();
+        var s = text.replace(/\s*\(חוה"מ\)/, "").trim();
+        s = s.replace(/\s+(א|ב|ג|ד|ה|ו|ז|ח)$/, "").trim();
+        s = s.replace(/^ערב\s+/, "").trim();
+        return s;
     }
 
     function findHolidayDateRange(holidayText, month) {
