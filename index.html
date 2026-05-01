@@ -917,7 +917,7 @@
 
                     if (mainType) {
                         if (mainType === "vacation") cell.classList.add("vacation-cell");
-                        if (mainType === "holiday") cell.classList.add("holiday-cell");
+                        if (mainType === "holiday" && weekday !== 5 && weekday !== 6) cell.classList.add("holiday-cell");
                         var dot = document.createElement("div");
                         dot.className = "type-dot type-" + mainType;
                         dateRow.appendChild(dot);
