@@ -153,7 +153,7 @@
             align-items: center;
             gap: 2px;
             width: 100%;
-            justify-content: flex-end;
+            justify-content: flex-start;
         }
 
         .day-cell .type-dot {
@@ -871,6 +871,10 @@
                         else if (entries.general) mainType = "general";
                     }
 
+                    var numSpan = document.createElement("span");
+                    numSpan.textContent = dayNum;
+                    dateRow.appendChild(numSpan);
+
                     if (mainType) {
                         if (mainType === "vacation") cell.classList.add("vacation-cell");
                         var dot = document.createElement("div");
@@ -878,9 +882,6 @@
                         dateRow.appendChild(dot);
                     }
 
-                    var numSpan = document.createElement("span");
-                    numSpan.textContent = dayNum;
-                    dateRow.appendChild(numSpan);
                     cell.appendChild(dateRow);
 
                     if (entries) {
