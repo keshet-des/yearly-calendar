@@ -724,14 +724,15 @@
 
         .date-picker-overlay {
             display: none;
-            position: relative;
-            z-index: 10;
+            position: fixed;
+            top: 60px;
+            right: 370px;
+            z-index: 1100;
             background: white;
             border-radius: 12px;
             box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.16);
             padding: 16px 12px 12px;
             direction: rtl;
-            margin-bottom: 10px;
         }
 
         .date-picker-overlay.active { display: block; }
