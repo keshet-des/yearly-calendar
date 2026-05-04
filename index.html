@@ -1812,6 +1812,16 @@
     });
 
     // --- Monthly Planning ---
+    function parseNum(val) {
+        if (!val) return 0;
+        return parseFloat(String(val).replace(/,/g, "")) || 0;
+    }
+
+    function fmtNum(val) {
+        var n = parseNum(val);
+        if (!n) return "";
+        return n.toLocaleString();
+    }
     var SERVICE_TYPES = [
         { value: "uxui_hourly", label: "UXUI שעתי" },
         { value: "space_impl", label: "ספייס+הטמעה" },
@@ -1889,9 +1899,9 @@
                     svcsHtml += '<option value="' + t.value + '"' + (svc.service_type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
                 });
                 svcsHtml += '</select></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">תעריף</div><input class="service-input svc-rate" type="number" value="' + (svc.rate || '') + '" placeholder="₪"></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">שעות</div><input class="service-input svc-hours" type="number" value="' + (svc.hours || '') + '" placeholder="0"></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">לקוחות</div><input class="service-input svc-clients" type="number" value="' + (svc.clients || '') + '" placeholder="0"></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">תעריף</div><input class="service-input svc-rate" type="text" inputmode="decimal" value="' + fmtNum(svc.rate) + '" placeholder="₪"></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">שעות</div><input class="service-input svc-hours" type="text" inputmode="decimal" value="' + fmtNum(svc.hours) + '" placeholder="0"></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">לקוחות</div><input class="service-input svc-clients" type="text" inputmode="decimal" value="' + fmtNum(svc.clients) + '" placeholder="0"></div>';
                 svcsHtml += '<button class="service-delete-btn svc-delete" style="margin-bottom:1px">&times;</button>';
                 svcsHtml += '</div>';
             });
@@ -1899,8 +1909,8 @@
             card.innerHTML =
                 '<div class="month-card-title">' + MONTHS_HE_FULL[m] + '</div>' +
                 '<div class="plan-top-row">' +
-                '<div class="plan-field"><span class="plan-label">שעות עבודה חודשיות</span><input class="plan-input plan-hours" type="number" value="' + (plan.work_hours || '') + '" placeholder="0"></div>' +
-                '<div class="plan-field"><span class="plan-label">יעד הכנסה (₪)</span><input class="plan-input plan-target" type="number" value="' + (plan.income_target || '') + '" placeholder="0"></div>' +
+                '<div class="plan-field"><span class="plan-label">שעות עבודה חודשיות</span><input class="plan-input plan-hours" type="text" inputmode="decimal" value="' + fmtNum(plan.work_hours) + '" placeholder="0"></div>' +
+                '<div class="plan-field"><span class="plan-label">יעד הכנסה (₪)</span><input class="plan-input plan-target" type="text" inputmode="decimal" value="' + fmtNum(plan.income_target) + '" placeholder="0"></div>' +
                 '</div>' +
                 '<div class="services-section">' +
                 '<div class="services-title">שירותים ומוצרים</div>' +
@@ -1908,7 +1918,7 @@
                 '<button class="add-service-btn">+ הוסף שירות</button>' +
                 '</div>' +
                 '<div class="month-card-summary">' +
-                '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + '</span></div>' +
+                '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours.toLocaleString() + '</span></div>' +
                 '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
                 '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "עברת את היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>' +
                 '</div>';
@@ -1926,8 +1936,8 @@
         function savePlan() {
             clearTimeout(planSaveTimer);
             planSaveTimer = setTimeout(async function() {
-                var wh = parseFloat(hoursInput.value) || 0;
-                var it = parseFloat(targetInput.value) || 0;
+                var wh = parseNum(hoursInput.value);
+                var it = parseNum(targetInput.value);
                 planData[month] = planData[month] || {};
                 planData[month].work_hours = wh;
                 planData[month].income_target = it;
@@ -1943,6 +1953,9 @@
 
         hoursInput.addEventListener("input", savePlan);
         targetInput.addEventListener("input", savePlan);
+        [hoursInput, targetInput].forEach(function(inp) {
+            inp.addEventListener("blur", function() { var v = parseNum(inp.value); inp.value = v ? v.toLocaleString() : ""; });
+        });
 
         card.querySelector(".add-service-btn").addEventListener("click", async function() {
             var newSvc = { year: planYear, month: month, service_type: "uxui_hourly", rate: 0, hours: 0, clients: 0 };
@@ -1964,9 +1977,9 @@
                 clearTimeout(planSaveTimer);
                 planSaveTimer = setTimeout(async function() {
                     svc.service_type = row.querySelector(".svc-type").value;
-                    svc.rate = parseFloat(row.querySelector(".svc-rate").value) || 0;
-                    svc.hours = parseFloat(row.querySelector(".svc-hours").value) || 0;
-                    svc.clients = parseInt(row.querySelector(".svc-clients").value) || 0;
+                    svc.rate = parseNum(row.querySelector(".svc-rate").value);
+                    svc.hours = parseNum(row.querySelector(".svc-hours").value);
+                    svc.clients = parseNum(row.querySelector(".svc-clients").value);
                     await sb.from("monthly_services").update({
                         service_type: svc.service_type, rate: svc.rate, hours: svc.hours, clients: svc.clients,
                         updated_at: new Date().toISOString()
@@ -1979,6 +1992,10 @@
             row.querySelector(".svc-rate").addEventListener("input", saveService);
             row.querySelector(".svc-hours").addEventListener("input", saveService);
             row.querySelector(".svc-clients").addEventListener("input", saveService);
+            [".svc-rate", ".svc-hours", ".svc-clients"].forEach(function(sel) {
+                var inp = row.querySelector(sel);
+                inp.addEventListener("blur", function() { var v = parseNum(inp.value); inp.value = v ? v.toLocaleString() : ""; });
+            });
 
             row.querySelector(".svc-delete").addEventListener("click", async function() {
                 await sb.from("monthly_services").delete().eq("id", svcId);
@@ -2000,7 +2017,7 @@
 
         var summary = card.querySelector(".month-card-summary");
         summary.innerHTML =
-            '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + '</span></div>' +
+            '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours.toLocaleString() + '</span></div>' +
             '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
             '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "עברת את היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>';
     }
