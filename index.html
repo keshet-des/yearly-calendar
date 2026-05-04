@@ -212,6 +212,8 @@
             z-index: 1;
         }
 
+        .day-cell.past-day { opacity: 0.8; }
+
         .day-cell.weekend { background: #F7F5F9; }
 
         .empty-cell { background: #C5BDCA; overflow: hidden; border: none; outline: none; box-shadow: none; border-radius: 4px; }
@@ -1449,6 +1451,8 @@
 
                     if (isToday(currentYear, m, dayNum)) {
                         cell.classList.add("today");
+                    } else if (new Date(currentYear, m, dayNum) < new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) {
+                        cell.classList.add("past-day");
                     }
 
                     (function(mm, dd) {
