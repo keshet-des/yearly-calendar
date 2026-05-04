@@ -19,6 +19,42 @@
             overflow: hidden;
         }
 
+        .app-nav {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0 16px;
+            background: #66606A;
+            flex-shrink: 0;
+            z-index: 101;
+            height: 36px;
+        }
+
+        .nav-btn {
+            padding: 7px 18px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-bottom: 2px solid transparent;
+            height: 100%;
+        }
+
+        .nav-btn:hover { color: rgba(255,255,255,0.85); }
+
+        .nav-btn.active {
+            color: white;
+            border-bottom-color: #FFDD28;
+            font-weight: 600;
+        }
+
+        .page { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+        .page.active { display: flex; }
+
         .app-header {
             display: flex;
             align-items: center;
@@ -839,31 +875,251 @@
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
         }
+
+        /* Monthly Planning Page */
+        .planning-page-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .planning-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .planning-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .planning-header select {
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            direction: ltr;
+        }
+
+        .planning-header select option { color: #333; }
+
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .month-card {
+            background: #FAF8FC;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .month-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8e5eb;
+        }
+
+        .plan-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .plan-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            white-space: nowrap;
+            min-width: 110px;
+        }
+
+        .plan-input {
+            flex: 1;
+            height: 32px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-family: inherit;
+            font-size: 13px;
+            direction: ltr;
+            text-align: right;
+            background: white;
+        }
+
+        .plan-input:focus { outline: none; border-color: #8B59FF; }
+
+        .plan-input-suffix {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        .services-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e8e5eb;
+        }
+
+        .services-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .service-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .service-select {
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            padding: 0 6px;
+            background: white;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .service-select:focus { outline: none; border-color: #8B59FF; }
+
+        .service-input {
+            width: 60px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0 6px;
+            font-family: inherit;
+            font-size: 12px;
+            direction: ltr;
+            text-align: center;
+            background: white;
+        }
+
+        .service-input:focus { outline: none; border-color: #8B59FF; }
+
+        .service-input-label {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .service-delete-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        .service-delete-btn:hover { color: #e74c3c; background: #fee; }
+
+        .add-service-btn {
+            background: none;
+            border: 1.5px dashed #C5BDCA;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            color: #8B59FF;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .add-service-btn:hover { border-color: #8B59FF; background: rgba(139,89,255,0.03); }
+
+        .month-card-summary {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e8e5eb;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .summary-label { color: #666; }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1a1a1a;
+            direction: ltr;
+        }
+
+        .summary-value.positive { color: #2ecc71; }
+        .summary-value.negative { color: #e74c3c; }
     </style>
 </head>
 <body>
 
-<div class="app-header">
-    <div class="header-center">
-        <h1>לוח תכנון שנתי לשנת</h1>
-        <select id="yearSelect"></select>
+<nav class="app-nav">
+    <button class="nav-btn active" data-page="calendar">לוח שנה</button>
+    <button class="nav-btn" data-page="planning">תכנון חודשי</button>
+</nav>
+
+<div class="page active" id="page-calendar">
+    <div class="app-header">
+        <div class="header-center">
+            <h1>לוח תכנון שנתי לשנת</h1>
+            <select id="yearSelect"></select>
+        </div>
+        <img src="logo.png" alt="logo" class="logo">
     </div>
-    <img src="logo.png" alt="logo" class="logo">
+
+    <div class="calendar-wrapper">
+        <div class="calendar" id="calendar"></div>
+    </div>
+    <div class="cell-tooltip" id="cellTooltip"></div>
+
+    <div class="bottom-sections">
+        <div class="section-card">
+            <h3>תכנית שנתית</h3>
+            <textarea id="yearlyPlan" placeholder="מה התכניות לשנה הזו?"></textarea>
+        </div>
+        <div class="section-card">
+            <h3>השנה אני...</h3>
+            <textarea id="yearlyGoals" placeholder="השנה אני הולכת ל..."></textarea>
+        </div>
+    </div>
 </div>
 
-<div class="calendar-wrapper">
-    <div class="calendar" id="calendar"></div>
-</div>
-<div class="cell-tooltip" id="cellTooltip"></div>
-
-<div class="bottom-sections">
-    <div class="section-card">
-        <h3>תכנית שנתית</h3>
-        <textarea id="yearlyPlan" placeholder="מה התכניות לשנה הזו?"></textarea>
-    </div>
-    <div class="section-card">
-        <h3>השנה אני...</h3>
-        <textarea id="yearlyGoals" placeholder="השנה אני הולכת ל..."></textarea>
+<div class="page" id="page-planning">
+    <div class="planning-page-content">
+        <div class="planning-header">
+            <h2>תכנון חודשי</h2>
+            <select id="planYearSelect"></select>
+        </div>
+        <div class="months-grid" id="monthsGrid"></div>
     </div>
 </div>
 
@@ -1538,6 +1794,221 @@
         if (cell) tooltip.classList.remove("active");
     });
 
+    // --- Navigation ---
+    document.querySelectorAll(".nav-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("active"); });
+            btn.classList.add("active");
+            document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("active"); });
+            document.getElementById("page-" + btn.dataset.page).classList.add("active");
+            if (btn.dataset.page === "planning") initPlanning();
+        });
+    });
+
+    // --- Monthly Planning ---
+    var SERVICE_TYPES = [
+        { value: "uxui_hourly", label: "UXUI שעתי" },
+        { value: "space_impl", label: "ספייס+הטמעה" },
+        { value: "workshop", label: "סדנה מלאה" }
+    ];
+
+    var planYear = currentYear;
+    var planData = {};
+    var planServices = {};
+    var planInitialized = false;
+
+    function buildPlanYearSelector() {
+        var sel = document.getElementById("planYearSelect");
+        sel.innerHTML = "";
+        for (var y = 2024; y <= 2035; y++) {
+            var opt = document.createElement("option");
+            opt.value = y;
+            opt.textContent = y;
+            if (y === planYear) opt.selected = true;
+            sel.appendChild(opt);
+        }
+        sel.addEventListener("change", async function() {
+            planYear = parseInt(sel.value);
+            await loadPlanData();
+            renderMonthCards();
+        });
+    }
+
+    async function loadPlanData() {
+        planData = {};
+        planServices = {};
+
+        var { data: plans } = await sb.from("monthly_plans").select("*").eq("year", planYear);
+        if (plans) plans.forEach(function(p) { planData[p.month] = p; });
+
+        var { data: svcs } = await sb.from("monthly_services").select("*").eq("year", planYear).order("id", { ascending: true });
+        if (svcs) svcs.forEach(function(s) {
+            if (!planServices[s.month]) planServices[s.month] = [];
+            planServices[s.month].push(s);
+        });
+    }
+
+    function calcServiceIncome(svc) {
+        if (svc.service_type === "uxui_hourly") return (svc.rate || 0) * (svc.hours || 0) * (svc.clients || 0);
+        return (svc.rate || 0) * (svc.clients || 0);
+    }
+
+    function calcServiceHours(svc) {
+        return (svc.hours || 0) * (svc.clients || 0);
+    }
+
+    function renderMonthCards() {
+        var grid = document.getElementById("monthsGrid");
+        grid.innerHTML = "";
+
+        for (var m = 0; m < 12; m++) {
+            var plan = planData[m] || { work_hours: 0, income_target: 0 };
+            var svcs = planServices[m] || [];
+
+            var card = document.createElement("div");
+            card.className = "month-card";
+            card.dataset.month = m;
+
+            var totalIncome = 0;
+            var totalHours = 0;
+            svcs.forEach(function(s) { totalIncome += calcServiceIncome(s); totalHours += calcServiceHours(s); });
+            var remainingHours = (plan.work_hours || 0) - totalHours;
+            var gap = totalIncome - (plan.income_target || 0);
+
+            var svcsHtml = "";
+            svcs.forEach(function(svc, idx) {
+                svcsHtml += '<div class="service-row" data-svc-id="' + svc.id + '">';
+                svcsHtml += '<select class="service-select svc-type">';
+                SERVICE_TYPES.forEach(function(t) {
+                    svcsHtml += '<option value="' + t.value + '"' + (svc.service_type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
+                });
+                svcsHtml += '</select>';
+                svcsHtml += '<span class="service-input-label">תעריף</span><input class="service-input svc-rate" type="number" value="' + (svc.rate || '') + '" placeholder="₪">';
+                var hoursLabel = svc.service_type === "uxui_hourly" ? "שעות" : "שעות";
+                svcsHtml += '<span class="service-input-label">' + hoursLabel + '</span><input class="service-input svc-hours" type="number" value="' + (svc.hours || '') + '" placeholder="0">';
+                var clientsLabel = svc.service_type === "uxui_hourly" ? "לקוחות" : "אנשים";
+                svcsHtml += '<span class="service-input-label">' + clientsLabel + '</span><input class="service-input svc-clients" type="number" value="' + (svc.clients || '') + '" placeholder="0">';
+                svcsHtml += '<button class="service-delete-btn svc-delete">&times;</button>';
+                svcsHtml += '</div>';
+            });
+
+            card.innerHTML =
+                '<div class="month-card-title">' + MONTHS_HE_FULL[m] + '</div>' +
+                '<div class="plan-row"><span class="plan-label">שעות עבודה חודשיות</span><input class="plan-input plan-hours" type="number" value="' + (plan.work_hours || '') + '" placeholder="0"><span class="plan-input-suffix">שעות</span></div>' +
+                '<div class="plan-row"><span class="plan-label">יעד הכנסה</span><input class="plan-input plan-target" type="number" value="' + (plan.income_target || '') + '" placeholder="0"><span class="plan-input-suffix">₪</span></div>' +
+                '<div class="services-section">' +
+                '<div class="services-title">שירותים ומוצרים</div>' +
+                '<div class="services-list">' + svcsHtml + '</div>' +
+                '<button class="add-service-btn">+ הוסף שירות</button>' +
+                '</div>' +
+                '<div class="month-card-summary">' +
+                '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + ' שעות</span></div>' +
+                '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
+                '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "מעל היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>' +
+                '</div>';
+
+            grid.appendChild(card);
+            bindCardEvents(card, m);
+        }
+    }
+
+    var planSaveTimer = null;
+    function bindCardEvents(card, month) {
+        var hoursInput = card.querySelector(".plan-hours");
+        var targetInput = card.querySelector(".plan-target");
+
+        function savePlan() {
+            clearTimeout(planSaveTimer);
+            planSaveTimer = setTimeout(async function() {
+                var wh = parseFloat(hoursInput.value) || 0;
+                var it = parseFloat(targetInput.value) || 0;
+                planData[month] = planData[month] || {};
+                planData[month].work_hours = wh;
+                planData[month].income_target = it;
+
+                await sb.from("monthly_plans").upsert({
+                    year: planYear, month: month, work_hours: wh, income_target: it,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: "year,month" });
+
+                updateCardSummary(card, month);
+            }, 400);
+        }
+
+        hoursInput.addEventListener("input", savePlan);
+        targetInput.addEventListener("input", savePlan);
+
+        card.querySelector(".add-service-btn").addEventListener("click", async function() {
+            var newSvc = { year: planYear, month: month, service_type: "uxui_hourly", rate: 0, hours: 0, clients: 0 };
+            var { data } = await sb.from("monthly_services").insert(newSvc).select("id");
+            if (data && data[0]) {
+                newSvc.id = data[0].id;
+                if (!planServices[month]) planServices[month] = [];
+                planServices[month].push(newSvc);
+                renderMonthCards();
+            }
+        });
+
+        card.querySelectorAll(".service-row").forEach(function(row) {
+            var svcId = parseInt(row.dataset.svcId);
+            var svc = (planServices[month] || []).find(function(s) { return s.id === svcId; });
+            if (!svc) return;
+
+            function saveService() {
+                clearTimeout(planSaveTimer);
+                planSaveTimer = setTimeout(async function() {
+                    svc.service_type = row.querySelector(".svc-type").value;
+                    svc.rate = parseFloat(row.querySelector(".svc-rate").value) || 0;
+                    svc.hours = parseFloat(row.querySelector(".svc-hours").value) || 0;
+                    svc.clients = parseInt(row.querySelector(".svc-clients").value) || 0;
+                    await sb.from("monthly_services").update({
+                        service_type: svc.service_type, rate: svc.rate, hours: svc.hours, clients: svc.clients,
+                        updated_at: new Date().toISOString()
+                    }).eq("id", svcId);
+                    updateCardSummary(card, month);
+                }, 400);
+            }
+
+            row.querySelector(".svc-type").addEventListener("change", saveService);
+            row.querySelector(".svc-rate").addEventListener("input", saveService);
+            row.querySelector(".svc-hours").addEventListener("input", saveService);
+            row.querySelector(".svc-clients").addEventListener("input", saveService);
+
+            row.querySelector(".svc-delete").addEventListener("click", async function() {
+                await sb.from("monthly_services").delete().eq("id", svcId);
+                planServices[month] = (planServices[month] || []).filter(function(s) { return s.id !== svcId; });
+                renderMonthCards();
+            });
+        });
+    }
+
+    function updateCardSummary(card, month) {
+        var plan = planData[month] || { work_hours: 0, income_target: 0 };
+        var svcs = planServices[month] || [];
+
+        var totalIncome = 0;
+        var totalHours = 0;
+        svcs.forEach(function(s) { totalIncome += calcServiceIncome(s); totalHours += calcServiceHours(s); });
+        var remainingHours = (plan.work_hours || 0) - totalHours;
+        var gap = totalIncome - (plan.income_target || 0);
+
+        var summary = card.querySelector(".month-card-summary");
+        summary.innerHTML =
+            '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + ' שעות</span></div>' +
+            '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
+            '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "מעל היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>';
+    }
+
+    async function initPlanning() {
+        if (!planInitialized) {
+            buildPlanYearSelector();
+            planInitialized = true;
+        }
+        await loadPlanData();
+        renderMonthCards();
+    }
+
+    // --- Init ---
     buildYearSelector();
     setupBottomSections();
 
