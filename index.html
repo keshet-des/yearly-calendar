@@ -883,33 +883,6 @@
             padding: 20px 24px;
         }
 
-        .planning-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .planning-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .planning-header select {
-            font-family: inherit;
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            direction: ltr;
-        }
-
-        .planning-header select option { color: #333; }
-
         .months-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -1148,7 +1121,7 @@
         <button class="nav-btn" data-page="planning">תכנון חודשי</button>
     </div>
     <div class="header-center">
-        <h1>לוח תכנון שנתי לשנת</h1>
+        <h1 id="headerTitle">לוח תכנון שנתי לשנת</h1>
         <select id="yearSelect"></select>
     </div>
     <img src="logo.png" alt="logo" class="logo">
@@ -1175,10 +1148,6 @@
 
 <div class="page" id="page-planning">
     <div class="planning-page-content">
-        <div class="planning-header">
-            <h2>תכנון חודשי</h2>
-            <select id="planYearSelect"></select>
-        </div>
         <div class="months-grid" id="monthsGrid"></div>
     </div>
 </div>
@@ -1379,9 +1348,16 @@
         }
         select.addEventListener("change", async function() {
             currentYear = parseInt(select.value);
-            calendarData = await loadData(currentYear);
-            renderCalendar();
-            await loadBottomSections();
+            var activePage = document.querySelector(".page.active");
+            if (activePage && activePage.id === "page-planning") {
+                planYear = currentYear;
+                await loadPlanData();
+                renderMonthCards();
+            } else {
+                calendarData = await loadData(currentYear);
+                renderCalendar();
+                await loadBottomSections();
+            }
         });
     }
 
@@ -1907,7 +1883,13 @@
             btn.classList.add("active");
             document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("active"); });
             document.getElementById("page-" + btn.dataset.page).classList.add("active");
-            if (btn.dataset.page === "planning") initPlanning();
+            var title = document.getElementById("headerTitle");
+            if (btn.dataset.page === "planning") {
+                title.textContent = "תכנון חודשי";
+                initPlanning();
+            } else {
+                title.textContent = "לוח תכנון שנתי לשנת";
+            }
         });
     });
 
@@ -1934,20 +1916,7 @@
     var planInitialized = false;
 
     function buildPlanYearSelector() {
-        var sel = document.getElementById("planYearSelect");
-        sel.innerHTML = "";
-        for (var y = 2024; y <= 2035; y++) {
-            var opt = document.createElement("option");
-            opt.value = y;
-            opt.textContent = y;
-            if (y === planYear) opt.selected = true;
-            sel.appendChild(opt);
-        }
-        sel.addEventListener("change", async function() {
-            planYear = parseInt(sel.value);
-            await loadPlanData();
-            renderMonthCards();
-        });
+        planYear = parseInt(document.getElementById("yearSelect").value);
     }
 
     async function loadPlanData() {
