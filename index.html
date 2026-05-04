@@ -1046,8 +1046,12 @@
             justify-content: center;
             padding: 0;
             line-height: 1;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
         }
 
+        .svc-stepper:hover .svc-step-btn { opacity: 1; pointer-events: auto; }
         .svc-step-btn:hover { background: #e8e5eb; color: #333; }
         .svc-step-btn.svc-minus { border-radius: 6px 0 0 6px; border-right: none; }
         .svc-step-btn.svc-plus { border-radius: 0 6px 6px 0; border-left: none; }
