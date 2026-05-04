@@ -932,23 +932,27 @@
             border-bottom: 1px solid #e8e5eb;
         }
 
-        .plan-row {
+        .plan-top-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .plan-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .plan-label {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
             color: #666;
-            white-space: nowrap;
-            min-width: 110px;
         }
 
         .plan-input {
-            flex: 1;
+            width: 100%;
             height: 32px;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -961,12 +965,6 @@
         }
 
         .plan-input:focus { outline: none; border-color: #8B59FF; }
-
-        .plan-input-suffix {
-            font-size: 12px;
-            color: #999;
-            white-space: nowrap;
-        }
 
         .services-section {
             margin-top: 12px;
@@ -983,45 +981,53 @@
 
         .service-row {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             gap: 6px;
             margin-bottom: 8px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+        }
+
+        .svc-field {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .svc-field-label {
+            font-size: 9px;
+            color: #999;
+            white-space: nowrap;
         }
 
         .service-select {
-            height: 30px;
+            height: 28px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-family: inherit;
-            font-size: 12px;
-            padding: 0 6px;
+            font-size: 11px;
+            padding: 0 4px;
             background: white;
-            min-width: 120px;
+            width: 100%;
             cursor: pointer;
         }
 
         .service-select:focus { outline: none; border-color: #8B59FF; }
 
         .service-input {
-            width: 60px;
-            height: 30px;
+            width: 100%;
+            height: 28px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            padding: 0 6px;
+            padding: 0 4px;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 11px;
             direction: ltr;
             text-align: center;
             background: white;
         }
 
         .service-input:focus { outline: none; border-color: #8B59FF; }
-
-        .service-input-label {
-            font-size: 10px;
-            color: #999;
-        }
 
         .service-delete-btn {
             background: none;
@@ -1878,33 +1884,33 @@
             var svcsHtml = "";
             svcs.forEach(function(svc, idx) {
                 svcsHtml += '<div class="service-row" data-svc-id="' + svc.id + '">';
-                svcsHtml += '<select class="service-select svc-type">';
+                svcsHtml += '<div class="svc-field" style="flex:2"><div class="svc-field-label">שירות</div><select class="service-select svc-type">';
                 SERVICE_TYPES.forEach(function(t) {
                     svcsHtml += '<option value="' + t.value + '"' + (svc.service_type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
                 });
-                svcsHtml += '</select>';
-                svcsHtml += '<span class="service-input-label">תעריף</span><input class="service-input svc-rate" type="number" value="' + (svc.rate || '') + '" placeholder="₪">';
-                var hoursLabel = svc.service_type === "uxui_hourly" ? "שעות" : "שעות";
-                svcsHtml += '<span class="service-input-label">' + hoursLabel + '</span><input class="service-input svc-hours" type="number" value="' + (svc.hours || '') + '" placeholder="0">';
-                var clientsLabel = svc.service_type === "uxui_hourly" ? "לקוחות" : "אנשים";
-                svcsHtml += '<span class="service-input-label">' + clientsLabel + '</span><input class="service-input svc-clients" type="number" value="' + (svc.clients || '') + '" placeholder="0">';
-                svcsHtml += '<button class="service-delete-btn svc-delete">&times;</button>';
+                svcsHtml += '</select></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">תעריף</div><input class="service-input svc-rate" type="number" value="' + (svc.rate || '') + '" placeholder="₪"></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">שעות</div><input class="service-input svc-hours" type="number" value="' + (svc.hours || '') + '" placeholder="0"></div>';
+                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">לקוחות</div><input class="service-input svc-clients" type="number" value="' + (svc.clients || '') + '" placeholder="0"></div>';
+                svcsHtml += '<button class="service-delete-btn svc-delete" style="margin-bottom:1px">&times;</button>';
                 svcsHtml += '</div>';
             });
 
             card.innerHTML =
                 '<div class="month-card-title">' + MONTHS_HE_FULL[m] + '</div>' +
-                '<div class="plan-row"><span class="plan-label">שעות עבודה חודשיות</span><input class="plan-input plan-hours" type="number" value="' + (plan.work_hours || '') + '" placeholder="0"><span class="plan-input-suffix">שעות</span></div>' +
-                '<div class="plan-row"><span class="plan-label">יעד הכנסה</span><input class="plan-input plan-target" type="number" value="' + (plan.income_target || '') + '" placeholder="0"><span class="plan-input-suffix">₪</span></div>' +
+                '<div class="plan-top-row">' +
+                '<div class="plan-field"><span class="plan-label">שעות עבודה חודשיות</span><input class="plan-input plan-hours" type="number" value="' + (plan.work_hours || '') + '" placeholder="0"></div>' +
+                '<div class="plan-field"><span class="plan-label">יעד הכנסה (₪)</span><input class="plan-input plan-target" type="number" value="' + (plan.income_target || '') + '" placeholder="0"></div>' +
+                '</div>' +
                 '<div class="services-section">' +
                 '<div class="services-title">שירותים ומוצרים</div>' +
                 '<div class="services-list">' + svcsHtml + '</div>' +
                 '<button class="add-service-btn">+ הוסף שירות</button>' +
                 '</div>' +
                 '<div class="month-card-summary">' +
-                '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + ' שעות</span></div>' +
+                '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + '</span></div>' +
                 '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
-                '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "מעל היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>' +
+                '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "עברת את היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>' +
                 '</div>';
 
             grid.appendChild(card);
@@ -1994,9 +2000,9 @@
 
         var summary = card.querySelector(".month-card-summary");
         summary.innerHTML =
-            '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + ' שעות</span></div>' +
+            '<div class="summary-row"><span class="summary-label">שעות לניהול ובניית העסק</span><span class="summary-value">' + remainingHours + '</span></div>' +
             '<div class="summary-row"><span class="summary-label">הכנסה חודשית צפויה</span><span class="summary-value">₪' + totalIncome.toLocaleString() + '</span></div>' +
-            '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "מעל היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>';
+            '<div class="summary-row"><span class="summary-label">' + (gap >= 0 ? "עברת את היעד ב" : "חסר להשלמת היעד") + '</span><span class="summary-value ' + (gap >= 0 ? "positive" : "negative") + '">₪' + Math.abs(gap).toLocaleString() + '</span></div>';
     }
 
     async function initPlanning() {
