@@ -1026,6 +1026,38 @@
             cursor: pointer;
         }
 
+        .svc-stepper {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .svc-step-btn {
+            width: 22px;
+            height: 28px;
+            border: 1px solid #ddd;
+            background: #f5f3f7;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .svc-step-btn:hover { background: #e8e5eb; color: #333; }
+        .svc-step-btn.svc-minus { border-radius: 6px 0 0 6px; border-right: none; }
+        .svc-step-btn.svc-plus { border-radius: 0 6px 6px 0; border-left: none; }
+
+        .svc-stepper .service-input {
+            border-radius: 0;
+            width: 36px;
+            text-align: center;
+        }
+
         .service-select:focus { outline: none; border-color: #8B59FF; }
 
         .service-input {
@@ -1917,7 +1949,7 @@
                 svcsHtml += '</select></td>';
                 svcsHtml += '<td><input class="service-input svc-rate" type="text" inputmode="decimal" value="' + fmtNum(svc.rate) + '" placeholder="₪"></td>';
                 svcsHtml += '<td><input class="service-input svc-hours" type="text" inputmode="decimal" value="' + fmtNum(svc.hours) + '" placeholder="0"></td>';
-                svcsHtml += '<td><input class="service-input svc-clients" type="text" inputmode="decimal" value="' + fmtNum(svc.clients) + '" placeholder="0"></td>';
+                svcsHtml += '<td><div class="svc-stepper"><button class="svc-step-btn svc-minus">−</button><input class="service-input svc-clients" type="text" inputmode="decimal" value="' + fmtNum(svc.clients) + '" placeholder="0"><button class="svc-step-btn svc-plus">+</button></div></td>';
                 svcsHtml += '<td><span class="svc-total">₪' + svcTotal.toLocaleString() + '</span></td>';
                 svcsHtml += '<td><button class="service-delete-btn svc-delete">&times;</button></td>';
                 svcsHtml += '</tr>';
@@ -2025,6 +2057,17 @@
             [".svc-rate", ".svc-hours", ".svc-clients"].forEach(function(sel) {
                 var inp = row.querySelector(sel);
                 inp.addEventListener("blur", function() { var v = parseNum(inp.value); inp.value = v ? v.toLocaleString() : ""; });
+            });
+
+            var clientsInp = row.querySelector(".svc-clients");
+            row.querySelector(".svc-minus").addEventListener("click", function() {
+                var v = parseNum(clientsInp.value);
+                if (v > 0) { clientsInp.value = fmtNum(v - 1) || "0"; saveService(); }
+            });
+            row.querySelector(".svc-plus").addEventListener("click", function() {
+                var v = parseNum(clientsInp.value);
+                clientsInp.value = fmtNum(v + 1);
+                saveService();
             });
 
             row.querySelector(".svc-delete").addEventListener("click", async function() {
