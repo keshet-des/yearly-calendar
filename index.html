@@ -475,6 +475,13 @@
             gap: 8px;
         }
 
+        .entry-range-dates {
+            font-size: 11px;
+            color: #999;
+            direction: ltr;
+            display: inline-block;
+        }
+
         .entry-type-tag {
             display: inline-flex;
             align-items: center;
@@ -1269,7 +1276,7 @@
         var result = {};
         var { data } = await sb
             .from("calendar_entries")
-            .select("id, month, day, content, type, hidden")
+            .select("id, month, day, content, type, hidden, range_group, range_start, range_end")
             .eq("year", year);
 
         if (data) {
@@ -1280,19 +1287,28 @@
                     id: row.id,
                     type: row.type || "general",
                     content: row.content,
-                    hidden: row.hidden || false
+                    hidden: row.hidden || false,
+                    range_group: row.range_group || null,
+                    range_start: row.range_start || null,
+                    range_end: row.range_end || null
                 });
             });
         }
         return result;
     }
 
-    async function insertEntryToDB(year, month, day, content, type) {
-        var { data } = await sb.from("calendar_entries").insert({
+    async function insertEntryToDB(year, month, day, content, type, rangeGroup, rangeStart, rangeEnd) {
+        var row = {
             year: year, month: month, day: day,
             content: content, type: type,
             updated_at: new Date().toISOString()
-        }).select("id");
+        };
+        if (rangeGroup) {
+            row.range_group = rangeGroup;
+            row.range_start = rangeStart;
+            row.range_end = rangeEnd;
+        }
+        var { data } = await sb.from("calendar_entries").insert(row).select("id");
         return data && data[0] ? data[0].id : null;
     }
 
@@ -1300,6 +1316,28 @@
         await sb.from("calendar_entries")
             .update({ content: content, type: type, updated_at: new Date().toISOString() })
             .eq("id", id);
+    }
+
+    async function updateRangeGroup(groupId, content, type) {
+        await sb.from("calendar_entries")
+            .update({ content: content, type: type, updated_at: new Date().toISOString() })
+            .eq("range_group", groupId);
+        Object.keys(calendarData).forEach(function(key) {
+            calendarData[key].forEach(function(e) {
+                if (e.range_group === groupId) {
+                    e.content = content;
+                    e.type = type;
+                }
+            });
+        });
+    }
+
+    async function deleteRangeGroup(groupId) {
+        await sb.from("calendar_entries").delete().eq("range_group", groupId);
+        Object.keys(calendarData).forEach(function(key) {
+            calendarData[key] = calendarData[key].filter(function(e) { return e.range_group !== groupId; });
+            if (calendarData[key].length === 0) delete calendarData[key];
+        });
     }
 
     async function deleteEntryByIdFromDB(id) {
@@ -1559,6 +1597,9 @@
                 html += '<div class="entry-card-body">';
                 html += '<div class="entry-card-header">';
                 html += '<span class="entry-type-tag ' + tagClass + '"><span class="tag-dot"></span>' + TYPE_LABELS[entry.type] + '</span>';
+                if (entry.range_start && entry.range_end) {
+                    html += '<span class="entry-range-dates">' + entry.range_start + ' - ' + entry.range_end + '</span>';
+                }
                 html += '</div>';
                 html += '<div class="entry-content">' + entry.content + '</div>';
                 html += '</div>';
@@ -1623,7 +1664,11 @@
             if (!newText) return;
             entry.content = newText;
             entry.type = editType;
-            await updateEntryInDB(entryId, newText, editType);
+            if (entry.range_group) {
+                await updateRangeGroup(entry.range_group, newText, editType);
+            } else {
+                await updateEntryInDB(entryId, newText, editType);
+            }
             renderEntriesList();
             renderCalendar();
         });
@@ -1637,9 +1682,14 @@
 
     async function deleteEntryById(entryId) {
         var entries = calendarData[currentEditKey] || [];
-        calendarData[currentEditKey] = entries.filter(function(e) { return e.id !== entryId; });
-        if (calendarData[currentEditKey].length === 0) delete calendarData[currentEditKey];
-        await deleteEntryByIdFromDB(entryId);
+        var entry = entries.find(function(e) { return e.id === entryId; });
+        if (entry && entry.range_group) {
+            await deleteRangeGroup(entry.range_group);
+        } else {
+            calendarData[currentEditKey] = entries.filter(function(e) { return e.id !== entryId; });
+            if (calendarData[currentEditKey].length === 0) delete calendarData[currentEditKey];
+            await deleteEntryByIdFromDB(entryId);
+        }
         renderEntriesList();
         renderCalendar();
     }
@@ -1670,20 +1720,23 @@
         var hasRange = dpStartDate && dpEndDate && dpStartDate.getTime() !== dpEndDate.getTime();
 
         if (hasRange) {
+            var groupId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            var rs = String(dpStartDate.getDate()).padStart(2,"0") + "." + String(dpStartDate.getMonth()+1).padStart(2,"0");
+            var re = String(dpEndDate.getDate()).padStart(2,"0") + "." + String(dpEndDate.getMonth()+1).padStart(2,"0");
             var d = new Date(dpStartDate);
             while (d <= dpEndDate) {
                 var m = d.getMonth();
                 var dd = d.getDate();
                 var key = dataKey(m, dd);
                 if (!calendarData[key]) calendarData[key] = [];
-                var newId = await insertEntryToDB(currentYear, m, dd, text, newEntryType);
-                calendarData[key].push({ id: newId, type: newEntryType, content: text, hidden: false });
+                var newId = await insertEntryToDB(currentYear, m, dd, text, newEntryType, groupId, rs, re);
+                calendarData[key].push({ id: newId, type: newEntryType, content: text, hidden: false, range_group: groupId, range_start: rs, range_end: re });
                 d.setDate(d.getDate() + 1);
             }
         } else {
             if (!calendarData[currentEditKey]) calendarData[currentEditKey] = [];
             var newId = await insertEntryToDB(currentYear, currentEditMonth, currentEditDay, text, newEntryType);
-            calendarData[currentEditKey].push({ id: newId, type: newEntryType, content: text, hidden: false });
+            calendarData[currentEditKey].push({ id: newId, type: newEntryType, content: text, hidden: false, range_group: null, range_start: null, range_end: null });
         }
 
         document.getElementById("newEntryText").value = "";
