@@ -19,29 +19,24 @@
             overflow: hidden;
         }
 
-        .app-nav {
+        .header-nav {
             display: flex;
             align-items: center;
             gap: 0;
-            padding: 0 16px;
-            background: #66606A;
-            flex-shrink: 0;
-            z-index: 101;
-            height: 36px;
+            margin-right: auto;
         }
 
         .nav-btn {
-            padding: 7px 18px;
+            padding: 4px 12px;
             background: transparent;
             border: none;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             font-family: inherit;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s;
             border-bottom: 2px solid transparent;
-            height: 100%;
         }
 
         .nav-btn:hover { color: rgba(255,255,255,0.85); }
@@ -307,13 +302,7 @@
 
         .drawer-overlay {
             display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.2);
-            z-index: 1000;
         }
-
-        .drawer-overlay.active { display: block; }
 
         .drawer {
             position: fixed;
@@ -1138,19 +1127,19 @@
 </head>
 <body>
 
-<nav class="app-nav">
-    <button class="nav-btn active" data-page="calendar">לוח שנה</button>
-    <button class="nav-btn" data-page="planning">תכנון חודשי</button>
-</nav>
+<div class="app-header">
+    <div class="header-nav">
+        <button class="nav-btn active" data-page="calendar">לוח שנה</button>
+        <button class="nav-btn" data-page="planning">תכנון חודשי</button>
+    </div>
+    <div class="header-center">
+        <h1>לוח תכנון שנתי לשנת</h1>
+        <select id="yearSelect"></select>
+    </div>
+    <img src="logo.png" alt="logo" class="logo">
+</div>
 
 <div class="page active" id="page-calendar">
-    <div class="app-header">
-        <div class="header-center">
-            <h1>לוח תכנון שנתי לשנת</h1>
-            <select id="yearSelect"></select>
-        </div>
-        <img src="logo.png" alt="logo" class="logo">
-    </div>
 
     <div class="calendar-wrapper">
         <div class="calendar" id="calendar"></div>
