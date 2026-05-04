@@ -1005,6 +1005,9 @@
             text-align: center;
             white-space: nowrap;
             direction: ltr;
+            display: inline-block;
+            width: 120px;
+            min-width: 120px;
         }
 
         .service-select {
@@ -1015,8 +1018,9 @@
             font-size: 11px;
             padding: 0 4px;
             background: white;
-            width: 100%;
-            min-width: 0;
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
             cursor: pointer;
         }
 
@@ -1970,7 +1974,7 @@
         });
 
         card.querySelector(".add-service-btn").addEventListener("click", async function() {
-            var newSvc = { year: planYear, month: month, service_type: "uxui_hourly", rate: 0, hours: 0, clients: 0 };
+            var newSvc = { year: planYear, month: month, service_type: "uxui_hourly", rate: 0, hours: 0, clients: 1 };
             var { data } = await sb.from("monthly_services").insert(newSvc).select("id");
             if (data && data[0]) {
                 newSvc.id = data[0].id;
@@ -2002,7 +2006,17 @@
                 }, 400);
             }
 
-            row.querySelector(".svc-type").addEventListener("change", saveService);
+            row.querySelector(".svc-type").addEventListener("change", function() {
+                var type = row.querySelector(".svc-type").value;
+                var hoursInp = row.querySelector(".svc-hours");
+                var clientsInp = row.querySelector(".svc-clients");
+                if (type === "uxui_hourly") {
+                    if (!parseNum(clientsInp.value)) clientsInp.value = "1";
+                } else if (type === "space_impl") {
+                    if (!parseNum(hoursInp.value)) hoursInp.value = "1.3";
+                }
+                saveService();
+            });
             row.querySelector(".svc-rate").addEventListener("input", saveService);
             row.querySelector(".svc-hours").addEventListener("input", saveService);
             row.querySelector(".svc-clients").addEventListener("input", saveService);
