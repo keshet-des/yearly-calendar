@@ -912,7 +912,7 @@
 
         .months-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
 
@@ -979,25 +979,32 @@
             margin-bottom: 8px;
         }
 
-        .service-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 6px;
-            margin-bottom: 8px;
-            flex-wrap: nowrap;
+        .services-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .svc-field {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-        }
-
-        .svc-field-label {
+        .services-table th {
             font-size: 9px;
+            font-weight: 500;
             color: #999;
+            text-align: center;
+            padding: 0 2px 4px;
             white-space: nowrap;
+        }
+
+        .services-table td {
+            padding: 2px 2px;
+            vertical-align: middle;
+        }
+
+        .svc-total {
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            white-space: nowrap;
+            direction: ltr;
         }
 
         .service-select {
@@ -1009,6 +1016,7 @@
             padding: 0 4px;
             background: white;
             width: 100%;
+            min-width: 0;
             cursor: pointer;
         }
 
@@ -1865,8 +1873,7 @@
     }
 
     function calcServiceIncome(svc) {
-        if (svc.service_type === "uxui_hourly") return (svc.rate || 0) * (svc.hours || 0) * (svc.clients || 0);
-        return (svc.rate || 0) * (svc.clients || 0);
+        return (svc.rate || 0) * (svc.hours || 0) * (svc.clients || 0);
     }
 
     function calcServiceHours(svc) {
@@ -1891,20 +1898,25 @@
             var remainingHours = (plan.work_hours || 0) - totalHours;
             var gap = totalIncome - (plan.income_target || 0);
 
-            var svcsHtml = "";
-            svcs.forEach(function(svc, idx) {
-                svcsHtml += '<div class="service-row" data-svc-id="' + svc.id + '">';
-                svcsHtml += '<div class="svc-field" style="flex:2"><div class="svc-field-label">שירות</div><select class="service-select svc-type">';
+            var svcsHtml = '<table class="services-table"><thead><tr>' +
+                '<th>שירות</th><th>תעריף</th><th>שעות</th><th>לקוחות</th><th>סה"כ</th><th></th>' +
+                '</tr></thead><tbody>';
+            svcs.forEach(function(svc) {
+                var svcTotal = calcServiceIncome(svc);
+                svcsHtml += '<tr class="service-row" data-svc-id="' + svc.id + '">';
+                svcsHtml += '<td><select class="service-select svc-type">';
                 SERVICE_TYPES.forEach(function(t) {
                     svcsHtml += '<option value="' + t.value + '"' + (svc.service_type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
                 });
-                svcsHtml += '</select></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">תעריף</div><input class="service-input svc-rate" type="text" inputmode="decimal" value="' + fmtNum(svc.rate) + '" placeholder="₪"></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">שעות</div><input class="service-input svc-hours" type="text" inputmode="decimal" value="' + fmtNum(svc.hours) + '" placeholder="0"></div>';
-                svcsHtml += '<div class="svc-field" style="flex:1"><div class="svc-field-label">לקוחות</div><input class="service-input svc-clients" type="text" inputmode="decimal" value="' + fmtNum(svc.clients) + '" placeholder="0"></div>';
-                svcsHtml += '<button class="service-delete-btn svc-delete" style="margin-bottom:1px">&times;</button>';
-                svcsHtml += '</div>';
+                svcsHtml += '</select></td>';
+                svcsHtml += '<td><input class="service-input svc-rate" type="text" inputmode="decimal" value="' + fmtNum(svc.rate) + '" placeholder="₪"></td>';
+                svcsHtml += '<td><input class="service-input svc-hours" type="text" inputmode="decimal" value="' + fmtNum(svc.hours) + '" placeholder="0"></td>';
+                svcsHtml += '<td><input class="service-input svc-clients" type="text" inputmode="decimal" value="' + fmtNum(svc.clients) + '" placeholder="0"></td>';
+                svcsHtml += '<td><span class="svc-total">₪' + svcTotal.toLocaleString() + '</span></td>';
+                svcsHtml += '<td><button class="service-delete-btn svc-delete">&times;</button></td>';
+                svcsHtml += '</tr>';
             });
+            svcsHtml += '</tbody></table>';
 
             card.innerHTML =
                 '<div class="month-card-title">' + MONTHS_HE_FULL[m] + '</div>' +
@@ -1914,7 +1926,7 @@
                 '</div>' +
                 '<div class="services-section">' +
                 '<div class="services-title">שירותים ומוצרים</div>' +
-                '<div class="services-list">' + svcsHtml + '</div>' +
+                svcsHtml +
                 '<button class="add-service-btn">+ הוסף שירות</button>' +
                 '</div>' +
                 '<div class="month-card-summary">' +
@@ -1980,6 +1992,8 @@
                     svc.rate = parseNum(row.querySelector(".svc-rate").value);
                     svc.hours = parseNum(row.querySelector(".svc-hours").value);
                     svc.clients = parseNum(row.querySelector(".svc-clients").value);
+                    var rowTotal = row.querySelector(".svc-total");
+                    if (rowTotal) rowTotal.textContent = "₪" + calcServiceIncome(svc).toLocaleString();
                     await sb.from("monthly_services").update({
                         service_type: svc.service_type, rate: svc.rate, hours: svc.hours, clients: svc.clients,
                         updated_at: new Date().toISOString()
