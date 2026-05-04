@@ -1016,18 +1016,26 @@
         }
 
         .svc-stepper {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 0;
+        }
+
+        .svc-stepper .service-input {
+            width: 100%;
+            text-align: center;
         }
 
         .svc-step-btn {
-            width: 22px;
-            height: 28px;
-            border: 1px solid #ddd;
-            background: #f5f3f7;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 22px;
+            border: none;
+            background: #e8e5eb;
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -1038,18 +1046,14 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.15s;
+            border-radius: 4px;
+            z-index: 1;
         }
 
         .svc-stepper:hover .svc-step-btn { opacity: 1; pointer-events: auto; }
-        .svc-step-btn:hover { background: #e8e5eb; color: #333; }
-        .svc-step-btn.svc-minus { border-radius: 6px 0 0 6px; border-right: none; }
-        .svc-step-btn.svc-plus { border-radius: 0 6px 6px 0; border-left: none; }
-
-        .svc-stepper .service-input {
-            border-radius: 0;
-            width: 36px;
-            text-align: center;
-        }
+        .svc-step-btn:hover { background: #d0ccd4; color: #333; }
+        .svc-step-btn.svc-minus { left: 2px; }
+        .svc-step-btn.svc-plus { right: 2px; }
 
         .service-select:focus { outline: none; border-color: #8B59FF; }
 
