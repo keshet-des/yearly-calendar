@@ -1059,6 +1059,20 @@
 
         .service-input:focus { outline: none; border-color: #8B59FF; }
 
+        .svc-drag-handle {
+            cursor: grab;
+            color: #ccc;
+            font-size: 14px;
+            padding: 2px 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+            user-select: none;
+        }
+
+        .service-row:hover .svc-drag-handle { opacity: 1; }
+        .service-row.dragging { opacity: 0.4; }
+        .service-row.drag-over { border-top: 2px solid #8B59FF; }
+
         .service-delete-btn {
             background: none;
             border: none;
@@ -1931,7 +1945,7 @@
         var { data: plans } = await sb.from("monthly_plans").select("*").eq("year", planYear);
         if (plans) plans.forEach(function(p) { planData[p.month] = p; });
 
-        var { data: svcs } = await sb.from("monthly_services").select("*").eq("year", planYear).order("id", { ascending: true });
+        var { data: svcs } = await sb.from("monthly_services").select("*").eq("year", planYear).order("sort_order", { ascending: true }).order("id", { ascending: true });
         if (svcs) svcs.forEach(function(s) {
             if (!planServices[s.month]) planServices[s.month] = [];
             planServices[s.month].push(s);
@@ -1939,7 +1953,10 @@
     }
 
     function calcServiceIncome(svc) {
-        return (svc.rate || 0) * (svc.hours || 0) * (svc.clients || 0);
+        if (svc.service_type && svc.service_type.indexOf("ux") !== -1) {
+            return (svc.rate || 0) * (svc.hours || 0) * (svc.clients || 0);
+        }
+        return (svc.rate || 0) * (svc.clients || 0);
     }
 
     function calcServiceHours(svc) {
@@ -1965,11 +1982,12 @@
             var gap = totalIncome - (plan.income_target || 0);
 
             var svcsHtml = '<table class="services-table"><thead><tr>' +
-                '<th>שירות</th><th>תעריף</th><th>שעות</th><th>לקוחות</th><th>סה"כ</th><th></th>' +
+                '<th></th><th>שירות</th><th>תעריף</th><th>שעות</th><th>לקוחות</th><th>סה"כ</th><th></th>' +
                 '</tr></thead><tbody>';
             svcs.forEach(function(svc) {
                 var svcTotal = calcServiceIncome(svc);
-                svcsHtml += '<tr class="service-row" data-svc-id="' + svc.id + '">';
+                svcsHtml += '<tr class="service-row" draggable="true" data-svc-id="' + svc.id + '">';
+                svcsHtml += '<td><span class="svc-drag-handle">⠿</span></td>';
                 svcsHtml += '<td><select class="service-select svc-type">';
                 SERVICE_TYPES.forEach(function(t) {
                     svcsHtml += '<option value="' + t.value + '"' + (svc.service_type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
@@ -2104,6 +2122,52 @@
                 renderMonthCards();
             });
         });
+
+        // Drag and drop reorder
+        var dragRow = null;
+        var tbody = card.querySelector(".services-table tbody");
+        if (tbody) {
+            tbody.querySelectorAll(".service-row").forEach(function(row) {
+                row.addEventListener("dragstart", function(e) {
+                    dragRow = row;
+                    row.classList.add("dragging");
+                    e.dataTransfer.effectAllowed = "move";
+                });
+                row.addEventListener("dragend", function() {
+                    row.classList.remove("dragging");
+                    tbody.querySelectorAll(".service-row").forEach(function(r) { r.classList.remove("drag-over"); });
+                    dragRow = null;
+                });
+                row.addEventListener("dragover", function(e) {
+                    e.preventDefault();
+                    if (row !== dragRow) row.classList.add("drag-over");
+                });
+                row.addEventListener("dragleave", function() {
+                    row.classList.remove("drag-over");
+                });
+                row.addEventListener("drop", async function(e) {
+                    e.preventDefault();
+                    row.classList.remove("drag-over");
+                    if (!dragRow || dragRow === row) return;
+                    tbody.insertBefore(dragRow, row);
+                    var svcs = planServices[month] || [];
+                    var newOrder = [];
+                    tbody.querySelectorAll(".service-row").forEach(function(r) {
+                        newOrder.push(parseInt(r.dataset.svcId));
+                    });
+                    var reordered = [];
+                    newOrder.forEach(function(id) {
+                        var s = svcs.find(function(x) { return x.id === id; });
+                        if (s) reordered.push(s);
+                    });
+                    planServices[month] = reordered;
+                    for (var i = 0; i < reordered.length; i++) {
+                        reordered[i].sort_order = i;
+                        await sb.from("monthly_services").update({ sort_order: i }).eq("id", reordered[i].id);
+                    }
+                });
+            });
+        }
     }
 
     function updateCardSummary(card, month) {
