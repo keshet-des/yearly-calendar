@@ -1,0 +1,36 @@
+name: Weekly DB Backup
+
+on:
+  schedule:
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Backup calendar_entries
+        run: |
+          mkdir -p backups
+          DATE=$(date +%Y-%m-%d)
+          curl -s "https://agshutiyyoebbgtsjyfh.supabase.co/rest/v1/calendar_entries?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" > backups/calendar_entries_$DATE.json
+          curl -s "https://agshutiyyoebbgtsjyfh.supabase.co/rest/v1/calendar_notes?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" > backups/calendar_notes_$DATE.json
+          curl -s "https://agshutiyyoebbgtsjyfh.supabase.co/rest/v1/monthly_plans?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" > backups/monthly_plans_$DATE.json
+          curl -s "https://agshutiyyoebbgtsjyfh.supabase.co/rest/v1/monthly_services?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" > backups/monthly_services_$DATE.json
+
+      - name: Remove backups older than 30 days
+        run: find backups -name "*.json" -mtime +30 -delete 2>/dev/null || true
+
+      - name: Commit backup
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "Backup Bot"
+          git add backups/
+          git diff --cached --quiet || git commit -m "Weekly backup $DATE"
+          git push
